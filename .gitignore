@@ -1,0 +1,6 @@
+podcaist/api_secrets.py
+*.venv
+*.wav
+podcaist/podcast_outputs/*
+podcaist/saved_outputs/*
+*.pdf

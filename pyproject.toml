@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "podcaist"
+version = "0.1.0"
+description = ""
+authors = ["dcaustin33 <dcaustin33@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+openai = "^1.75.0"
+jupyter = "^1.1.1"
+ipykernel = "^6.29.5"
+tqdm = "^4.67.1"
+elevenlabs = "^1.57.0"
+dotenv = "^0.9.9"
+google = "^3.0.0"
+google-genai = "^1.11.0"
+pymupdf = "^1.25.5"
+pillow = "^11.2.1"
+pydub = "^0.25.1"
+soundfile = "^0.13.1"
+kokoro = "^0.9.4"
+modal = "^0.74.21"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

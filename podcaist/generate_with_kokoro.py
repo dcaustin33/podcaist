@@ -1,0 +1,79 @@
+import os
+import tempfile
+
+import numpy as np
+import pydub
+import soundfile as sf
+from kokoro import KPipeline
+
+from podcaist.modal_utils import app, image
+
+
+# 2️⃣  Remote function ------------------------------------------------------------
+@app.function(
+    gpu="T4",  # pick any GPU on the list in docs (T4, L4, A10G, A100…)  [oai_citation_attribution:0‡Modal](https://modal.com/docs/guide/gpu?utm_source=chatgpt.com)
+    timeout=600,  # plenty of time for the first model load
+    image=image,
+    # If the model is gated add: secrets=[modal.Secret.from_name("huggingface")]
+)
+def generate_kokoro_modal(text: str, voice: str = "kokoro") -> bytes:
+    """
+    Turns text → speech with Kokoro.
+    Returns raw bytes (WAV by default, MP3 if as_mp3=True).
+    """
+
+    from kokoro import KPipeline
+
+    global _kokoro_pipeline
+    if "_kokoro_pipeline" not in globals():
+        _kokoro_pipeline = KPipeline(lang_code="a")
+
+    generator = _kokoro_pipeline(text, voice=voice)
+
+    audio_segments = []
+    for i, (gs, ps, audio) in enumerate(generator):
+        audio_segments.append(audio.numpy())
+
+    return audio_segments
+
+
+def generate_kokoro_audio_local(
+    text: str,
+    voice: str = "af_heart",
+) -> None:
+    pipeline = KPipeline(lang_code="a")
+    generator = pipeline(text, voice=voice)
+
+    audio_segments = []
+    for i, (gs, ps, audio) in enumerate(generator):
+        audio_segments.append(audio.numpy())
+
+    return audio_segments
+
+
+def generate_kokoro_audio(
+    podcast_title: str,
+    text: str,
+    voice: str = "af_heart",
+    output_path: str = "./podcast_outputs",
+    remote: bool = False,
+) -> None:
+    if remote:
+        with app.run():
+            audio_segments = generate_kokoro_modal.remote(text, voice=voice)
+    else:
+        audio_segments = generate_kokoro_audio_local(text, voice=voice)
+
+    if audio_segments:
+        combined_audio = np.concatenate(audio_segments, axis=0)
+        wav_temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+        sf.write(wav_temp_file.name, combined_audio, 24000)
+        wav_temp_file.close()
+
+        os.makedirs(output_path, exist_ok=True)
+
+        pydub.AudioSegment.from_wav(wav_temp_file.name).export(
+            f"{output_path}/{podcast_title}_kokoro.mp3", format="mp3"
+        )
+
+        os.unlink(wav_temp_file.name)
