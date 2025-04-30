@@ -11,8 +11,8 @@ from podcaist.pdf_utils import compress_pdf
 def generate_entire_podcast(
     pdf_path: str,
     model: str = "gemini-2.0-flash-001",
-    audio_model: str = "eleven_labs",
-    remote: bool = True,
+    audio_model: str = "kokoro",
+    remote: bool = False,
 ) -> None:
     """
     Generates an entire podcast from a PDF file.
