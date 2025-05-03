@@ -10,7 +10,9 @@ from pydantic import BaseModel
 
 from podcaist.utils import read_pdf_file_bytes
 
-client = genai.Client(api_key=gemini_api_key)
+
+api_key = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=api_key)
 aio = client.aio
 
 
