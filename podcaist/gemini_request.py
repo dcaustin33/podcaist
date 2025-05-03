@@ -1,13 +1,13 @@
 import asyncio
 import json
 from typing import Any, Dict, List, Optional
+import os
 
 from google import genai
 from google.genai.types import (CreateCachedContentConfig,
                                 GenerateContentConfig, Part)
 from pydantic import BaseModel
 
-from podcaist.api_secrets import gemini_api_key
 from podcaist.utils import read_pdf_file_bytes
 
 client = genai.Client(api_key=gemini_api_key)
@@ -22,7 +22,8 @@ def get_pdf_for_prompt(pdf_path: str) -> bytes:
 def upload_pdf_and_cache(
     pdf_path: str, model: str = "gemini-2.0-flash-lite-001"
 ) -> str:
-    client = genai.Client(api_key=gemini_api_key)
+    api_key = os.getenv("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
     pdf_bytes = read_pdf_file_bytes(pdf_path)
     client_pdf_type = Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")
     document = client.files.upload(
@@ -39,12 +40,14 @@ def upload_pdf_and_cache(
 
 
 def list_cached_content() -> List[Dict[str, Any]]:
-    client = genai.Client(api_key=gemini_api_key)
+    api_key = os.getenv("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
     return client.caches.list()
 
 
 def delete_cached_content(cache_name: str) -> None:
-    client = genai.Client(api_key=gemini_api_key)
+    api_key = os.getenv("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
     client.caches.delete(cache_name)
 
 
@@ -53,7 +56,8 @@ def generate_gemini_response(
     model: str = "gemini-2.0-flash-lite-001",
     response_format: Optional[BaseModel] = None,
 ) -> str:
-    client = genai.Client(api_key=gemini_api_key)
+    api_key = os.getenv("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
 
     config = None
     if response_format:

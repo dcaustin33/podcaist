@@ -2,8 +2,6 @@ import os
 from elevenlabs import save
 from elevenlabs.client import ElevenLabs
 
-from podcaist.api_secrets import elevenlabs_api_key
-
 
 def generate_eleven_labs_audio(
     podcast_title: str,
@@ -16,7 +14,8 @@ def generate_eleven_labs_audio(
 ) -> None:
 
     assert remote, "Eleven Labs is not supported locally"
-    client = ElevenLabs(api_key=elevenlabs_api_key)
+    api_key = os.getenv("ELEVENLABS_API_KEY")
+    client = ElevenLabs(api_key=api_key)
 
     audio = client.text_to_speech.convert(
         text=text,

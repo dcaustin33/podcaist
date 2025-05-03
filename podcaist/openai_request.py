@@ -1,21 +1,22 @@
 import asyncio
 import json
+import os
 from typing import Any, Dict, List, Optional
 
 from openai import AsyncOpenAI, OpenAI
 from pydantic import BaseModel
 
-from podcaist.api_secrets import opneai_api_key
-
 
 def create_file(file_path: str) -> str:
-    client = OpenAI(api_key=openai_api_key)
+    api_key = os.getenv("OPENAI_API_KEY")
+    client = OpenAI(api_key=api_key)
     file = client.files.create(file=open(file_path, "rb"), purpose="user_data")
     return file.id
 
 
 def list_uploaded_files() -> List[Dict[str, Any]]:
-    client = OpenAI(api_key=openai_api_key)
+    api_key = os.getenv("OPENAI_API_KEY")
+    client = OpenAI(api_key=api_key)
     files = client.files.list()
     return {f"{file.filename}": file.id for file in files}
 
@@ -25,7 +26,8 @@ def generate_openai_response(
     model: str = "gpt-4o-mini-2024-07-18",
     response_format: Optional[BaseModel] = None,
 ) -> Dict[str, Any]:
-    client = OpenAI(api_key=openai_api_key)
+    api_key = os.getenv("OPENAI_API_KEY")
+    client = OpenAI(api_key=api_key)
     if response_format:
         completion = client.beta.chat.completions.parse(
             model=model, messages=input_contents, response_format=response_format
@@ -54,6 +56,7 @@ def get_file_id(file_path: str) -> str:
 
 
 def delete_file(file_id: str) -> None:
+    api_key = os.getenv("OPENAI_API_KEY")
     client = OpenAI(api_key=api_key)
     client.files.delete(file_id)
 
@@ -70,7 +73,7 @@ async def generate_openai_response_async(
       helper and return the parsed dict.
     • Otherwise we return the raw string content.
     """
-
+    api_key = os.getenv("OPENAI_API_KEY")
     client = AsyncOpenAI(api_key=api_key)
     if response_format:
         completion = await client.beta.chat.completions.parse(
