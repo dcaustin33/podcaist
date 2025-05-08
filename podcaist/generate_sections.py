@@ -135,6 +135,7 @@ def generate_section(
     sections: tuple[str, str],
     model: str = "gpt-4o-mini-2024-07-18",
     idx: int = 0,
+    write_output: bool = False,
 ) -> str:
     prompt_to_be_used = general_generate_prompt
 
@@ -154,7 +155,8 @@ def generate_section(
     response = generate_text_response(
         input_contents=input_text, model=model, response_format=PodcastScript
     )
-    write_json_file(f"saved_outputs/section_{model}_{idx}.json", response)
+    if write_output:
+        write_json_file(f"saved_outputs/section_{model}_{idx}.json", response)
     return (response["section_type"], response["section"])
 
 
@@ -167,6 +169,7 @@ def generate_section_by_section(
     start_generation: int = 0,
     end_generation: int = 7,
     model: str = "gpt-4o-mini-2024-07-18",
+    write_output: bool = False,
 ) -> tuple[str, str]:
     sections = []
     for i in tqdm.tqdm(range(start_generation, end_generation)):
@@ -179,6 +182,7 @@ def generate_section_by_section(
             sections,
             model=model,
             idx=i,
+            write_output=write_output,
         )
         sections.append(section)
     return sections

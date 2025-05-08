@@ -155,6 +155,7 @@ async def generate_podcast_script_async(
         start_generation=0,
         end_generation=7,
         model=model,
+        write_output=write_output,
     )
 
     script = format_podcast(sections)
