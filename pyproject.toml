@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "podcaist"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["dcaustin33 <dcaustin33@gmail.com>"]
 readme = "README.md"
