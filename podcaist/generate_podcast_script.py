@@ -1,19 +1,27 @@
 import asyncio
 import os
 
-import tqdm
-
 from podcaist.ablation_studies import ablation_studies, ablation_studies_async
-from podcaist.contributions import (summarize_contributions,
-                                    summarize_contributions_async)
-from podcaist.deep_dive import (deep_dive_contribution,
-                                deep_dive_contribution_async,
-                                format_deep_dives)
+from podcaist.contributions import (
+    summarize_contributions,
+    summarize_contributions_async,
+)
+from podcaist.deep_dive import (
+    deep_dive_contribution,
+    deep_dive_contribution_async,
+    format_deep_dives,
+)
 from podcaist.generate_sections import generate_section_by_section
 from podcaist.method import method, method_async
+from podcaist.progress import Progress
 from podcaist.results import results, results_async
-from podcaist.utils import (format_podcast, read_json_file, read_text_file,
-                            write_json_file, write_text_file)
+from podcaist.utils import (
+    format_podcast,
+    read_json_file,
+    read_text_file,
+    write_json_file,
+    write_text_file,
+)
 
 SEM_LIMIT = 10
 
@@ -32,7 +40,7 @@ def generate_podcast_script(
             )
 
         deep_dives = []
-        for i in tqdm.tqdm(range(len(contributions["key_contributions"]))):
+        for i in range(len(contributions["key_contributions"])):
             deep_dive = deep_dive_contribution(
                 pdf_file_path,
                 contributions["key_contributions"][i],
@@ -81,7 +89,7 @@ def generate_podcast_script(
         )
 
         deep_dives = []
-        for i in tqdm.tqdm(range(len(contributions))):
+        for i in range(len(contributions)):
             section = read_json_file(f"saved_outputs/section_{model}_{i}.json")
             deep_dives.append(section)
 
@@ -106,11 +114,16 @@ def generate_podcast_script(
 
 
 async def generate_podcast_script_async(
-    pdf_file_path: str, generate_again: bool = True, model="gpt-4o-mini-2024-07-18", write_output: bool = False,
+    pdf_file_path: str,
+    generate_again: bool = True,
+    model="gpt-4o-mini-2024-07-18",
+    write_output: bool = False,
+    progress: Progress | None = None,
 ):
     assert generate_again, "generate_again must be True"
     sem = asyncio.Semaphore(SEM_LIMIT)
 
+    progress and progress.step("Summarizing the main contributions")
     first_tasks = await asyncio.gather(
         summarize_contributions_async(pdf_file_path, model),
         results_async(pdf_file_path, model),
@@ -121,14 +134,14 @@ async def generate_podcast_script_async(
     if write_output:
         write_json_file(f"saved_outputs/contributions_{model}.json", contributions)
 
-    deep_dives = await tqdm.asyncio.tqdm_asyncio.gather(
+    progress and progress.step("Diving deep on research details")
+    deep_dives = await asyncio.gather(
         *(
             deep_dive_contribution_async(
                 pdf_file_path, i, contributions["summary"], model
             )
             for i in contributions["key_contributions"]
-        ),
-        desc="Deep dives",
+        )
     )
 
     if write_output:
@@ -146,6 +159,8 @@ async def generate_podcast_script_async(
         )
 
     deep_dive_output = format_deep_dives(deep_dives)
+
+    progress and progress.step("Generating podcast script")
     sections = generate_section_by_section(
         pdf_file_path,
         deep_dive_output,

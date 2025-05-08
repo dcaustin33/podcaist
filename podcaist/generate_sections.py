@@ -1,4 +1,3 @@
-import tqdm
 from pydantic import BaseModel, Field
 
 from podcaist.model_garden import generate_text_response
@@ -172,7 +171,7 @@ def generate_section_by_section(
     write_output: bool = False,
 ) -> tuple[str, str]:
     sections = []
-    for i in tqdm.tqdm(range(start_generation, end_generation)):
+    for i in range(start_generation, end_generation):
         section = generate_section(
             pdf_file_path,
             deep_dive_output,
