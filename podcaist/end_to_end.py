@@ -35,6 +35,7 @@ def generate_entire_podcast(
 
     progress and progress.step("Generating audio")
     podcast_title = os.path.basename(pdf_path).split(".")[0] + "_" + model
-    generate_audio(podcast_title, podcast_script, audio_model, remote=remote)
+    temp_file_name = generate_audio(podcast_title, podcast_script, audio_model, remote=remote)
 
     progress and progress.step("Done") 
+    return temp_file_name

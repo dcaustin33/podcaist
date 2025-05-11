@@ -66,14 +66,19 @@ def generate_kokoro_audio(
 
     if audio_segments:
         combined_audio = np.concatenate(audio_segments, axis=0)
-        wav_temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+        wav_temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=True)
         sf.write(wav_temp_file.name, combined_audio, 24000)
         wav_temp_file.close()
 
         os.makedirs(output_path, exist_ok=True)
 
+        mp3_temp_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
         pydub.AudioSegment.from_wav(wav_temp_file.name).export(
-            f"{output_path}/{podcast_title}_kokoro.mp3", format="mp3"
+            mp3_temp_file.name, format="mp3"
         )
 
         os.unlink(wav_temp_file.name)
+
+        return mp3_temp_file.name
+    
+    return None

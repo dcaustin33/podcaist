@@ -1,4 +1,5 @@
 import os
+import tempfile
 from elevenlabs import save
 from elevenlabs.client import ElevenLabs
 
@@ -25,5 +26,7 @@ def generate_eleven_labs_audio(
     )
 
     os.makedirs(output_path, exist_ok=True)
-    save(audio, f"{output_path}/{podcast_title}_eleven_labs.mp3")
-    return None
+
+    mp3_temp_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+    save(audio, mp3_temp_file.name)
+    return mp3_temp_file.name
