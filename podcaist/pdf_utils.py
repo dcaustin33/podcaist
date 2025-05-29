@@ -27,6 +27,12 @@ def compress_pdf(  # cross‑platform
             mode = "RGBA" if pix.alpha else "RGB"
             pil = Image.frombytes(mode, (pix.width, pix.height), pix.samples)
 
+            # Convert RGBA to RGB by removing alpha channel
+            if mode == "RGBA":
+                background = Image.new("RGB", pil.size, (255, 255, 255))
+                background.paste(pil, mask=pil.split()[3])  # Use alpha channel as mask
+                pil = background
+
             # (Optional) downsample by DPI ratio if original DPI known:
             if target_dpi and hasattr(pix, "xres") and pix.xres > 0:
                 scale = target_dpi / pix.xres
