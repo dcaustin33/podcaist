@@ -39,3 +39,12 @@ def generate_entire_podcast(
 
     progress and progress.step("Done") 
     return temp_file_name
+
+
+if __name__ == "__main__":
+    generate_entire_podcast(
+        "../../Matformer.pdf",
+        model="gemini-2.0-flash-001",
+        audio_model="kokoro",
+        remote=True,
+    )

@@ -68,7 +68,7 @@ def generate_kokoro_audio(
         combined_audio = np.concatenate(audio_segments, axis=0)
         wav_temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=True)
         sf.write(wav_temp_file.name, combined_audio, 24000)
-        wav_temp_file.close()
+        wav_temp_file.flush()
 
         os.makedirs(output_path, exist_ok=True)
 
@@ -77,8 +77,6 @@ def generate_kokoro_audio(
             mp3_temp_file.name, format="mp3"
         )
 
-        os.unlink(wav_temp_file.name)
-
         return mp3_temp_file.name
-    
+
     return None
