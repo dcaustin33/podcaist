@@ -4,3 +4,4 @@ podcaist/api_secrets.py
 podcaist/podcast_outputs/*
 podcaist/saved_outputs/*
 *.pdf
+*.claude

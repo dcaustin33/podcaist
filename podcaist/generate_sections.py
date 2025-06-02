@@ -95,6 +95,9 @@ The following is a description of the ablation studies that were performed.
 
 {ablation_studies}
 
+Importantly do not use any markdown or headers in your response including asterisks - section headers or anything else. All of the text should be in plain english that 
+can be spoken out loud. Additionally do not write out equations or math symbols, instead explain the relevant equations in natural english so the user 
+can understand the purpose of the equation, they do not need to know the exact values of the equations.
 
 """
 
