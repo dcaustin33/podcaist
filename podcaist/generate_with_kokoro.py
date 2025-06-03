@@ -4,7 +4,6 @@ import tempfile
 import numpy as np
 import pydub
 import soundfile as sf
-from kokoro import KPipeline
 
 from podcaist.modal_utils import app, image
 
@@ -41,6 +40,8 @@ def generate_kokoro_audio_local(
     text: str,
     voice: str = "af_heart",
 ) -> None:
+    from kokoro import KPipeline
+
     pipeline = KPipeline(lang_code="a")
     generator = pipeline(text, voice=voice)
 
