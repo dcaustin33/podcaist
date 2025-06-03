@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from podcaist.model_garden import generate_text_response
 from podcaist.utils import write_json_file
 
-general_generate_prompt = """You are an expert AI podcast host explaining a research paper to a general but tech-curious audience.
+general_generate_prompt = """You are an expert AI podcast host explaining a research paper to a general but tech-curious audience. The podcast is called "The AI Deep Dive Podcast".
 
 Please generate a full podcast script based on the following structure. Use clear, engaging language, and explain technical ideas with metaphors or analogies when helpful. Convert math symbols into words. Don’t assume the audience has read the paper, but do respect their intelligence.
 
