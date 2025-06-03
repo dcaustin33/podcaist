@@ -4,6 +4,7 @@ import tempfile
 import numpy as np
 import pydub
 import soundfile as sf
+from kokoro import KPipeline
 
 from podcaist.modal_utils import app, image
 
