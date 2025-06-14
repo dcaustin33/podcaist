@@ -21,22 +21,26 @@ def generate_entire_podcast(
     save_locally: bool = False,
     local_output_path: str = "./podcast_outputs",
     progress: Progress | None = None,
+    test_audio: bool = False,
 ) -> None:
+    if not test_audio:
+        compressed_pdf_path = tempfile.NamedTemporaryFile(suffix=".pdf", delete=True).name
+        compress_pdf(pdf_path, compressed_pdf_path)
 
-    compressed_pdf_path = tempfile.NamedTemporaryFile(suffix=".pdf", delete=True).name
-    compress_pdf(pdf_path, compressed_pdf_path)
-
-    progress and progress.step("Generating podcast script")
-    podcast_script = asyncio.run(
-        generate_podcast_script_async(
-            compressed_pdf_path,
-            model=model,
-            progress=progress,
-            write_output=write_output,
+        progress and progress.step("Generating podcast script")
+        podcast_script = asyncio.run(
+            generate_podcast_script_async(
+                compressed_pdf_path,
+                model=model,
+                progress=progress,
+                write_output=write_output,
+            )
         )
-    )
 
-    progress and progress.step("Generating audio")
+        progress and progress.step("Generating audio")
+    else:
+        podcast_script = "This is a test of the audio system. It should be able to generate audio from a script."
+
     podcast_title = os.path.basename(pdf_path).split(".")[0] + "_" + model
     temp_file_name = generate_audio(podcast_title, podcast_script, audio_model, remote=remote)
 
@@ -56,9 +60,10 @@ def generate_entire_podcast(
 
 if __name__ == "__main__":
     generate_entire_podcast(
-        "../../D-Fine.pdf",
+        "/Users/derek/Library/Mobile Documents/com~apple~CloudDocs/Desktop/ML Papers 2/papers_to_read/STT- Stateful Tracking with Transformers for Autonomous Driving.pdf",
         model="gemini-2.0-flash-001",
-        audio_model="kokoro",
+        audio_model="eleven_labs",
         remote=True,
         save_locally=True,
+        test_audio=False,
     )

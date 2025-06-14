@@ -7,7 +7,7 @@ from elevenlabs.client import ElevenLabs
 def generate_eleven_labs_audio(
     podcast_title: str,
     text: str,
-    voice: str = "JBFqnCBsd6RMkjVDRZzb",
+    voice: str = "ThT5KcBeYPX3keUQqHPh",
     model_id: str = "eleven_flash_v2_5",
     output_format: str = "mp3_44100_128",
     output_path: str = "./podcast_outputs",
@@ -23,6 +23,7 @@ def generate_eleven_labs_audio(
         voice_id=voice,
         model_id=model_id,
         output_format=output_format,
+        speed=1.2,
     )
 
     os.makedirs(output_path, exist_ok=True)
