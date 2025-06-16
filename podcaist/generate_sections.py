@@ -1,190 +1,89 @@
 from pydantic import BaseModel, Field
 
 from podcaist.model_garden import generate_text_response
-from podcaist.utils import write_json_file
+from podcaist.utils import format_contributions
 
-general_generate_prompt = """You are an expert AI podcast host explaining a research paper to a general but tech-curious audience. The podcast is called "The AI Deep Dive Podcast".
-
-Please generate a full podcast script based on the following structure. Use clear, engaging language, and explain technical ideas with metaphors or analogies when helpful. Convert math symbols into words. Don’t assume the audience has read the paper, but do respect their intelligence.
-
-I have also attached the pdf for your reference but I have extracted the key content below.
-
-Ensure you are writing in english that could be spoken out loud, ie. do not use latex or math symbols, instead use the words that would describe those symbols. For instance instead of writing Q_i, write the word "Q sub i". Also the speaker will pronounce any words with all capitals as the individual letters, 
-ie. "LPIPS" should be pronounced as "L P I P S" so if you do not want that to happen, do not use all caps.
-
-This is meant for a technical audience so ensure all details are included.
-
-Structure - remember all of the questions after each section are just suggestions and please deviate if you see fit:
-
-⸻
-
-🔹 1. Intro (1–2 mins)
-	•	Start with a compelling hook or real-world question.
-	•	Mention the paper title.
-	•	State why the paper is important and worth discussing.
-
-⸻
-
-🔹 2. Big Picture / Motivation (2–4 mins)
-	•	What problem does this paper address?
-	•	Why does it matter in the real world or in the AI community?
-	•	What have previous approaches done, and what’s missing?
-
-⸻
-
-🔹 3. Main Contributions (1–2 mins)
-	•	List the novel ideas or contributions of the paper in simple terms.
-	•	Highlight what makes this work different or special.
-
-⸻
-
-🔹 4. Methodology (4–6 mins)
-	•	Walk through the technical method clearly.
-	•	Explain all concepts or modules in the system.
-	•	This is meant for a technical audience so ensure all details are included.
-	•	Convert equations and symbols into spoken words.
-	•	Do not skip any details and mention all parameters, models, datasets, etc.
-	•	Do not assume the audience has read the paper and explain everything in detail. The goal is for the audience to be able to implement the method themselves.
-
-⸻
-
-🔹 5. Experiments & Results (2–4 mins)
-	•	What benchmarks or datasets were used?
-	•	How did the model perform compared to others?
-	•	Highlight any surprising results or notable trade-offs.
-
-⸻
-
-🔹 6. Personal Take or Reflections (optional)
-	•	Add a brief opinion or analysis.
-	•	Connect it to a broader trend or a practical impact.
-	•	Pose a question for the audience to think about.
-
-⸻
-
-🔹 7. Outro (30–60 sec)
-	•	Recap the key idea in one sentence.
-	•	Mention where listeners can find the paper.
-	•	How could this method be connected to a company or product?
-	•	Optionally, tease what’s coming next.
-    
-    
-Here is the content and relevant information that has been extracted.
-
-# Deep Dive on contributions
-The following is a description of the contributions of the paper.
-
+general_generate_prompt = """\
+Here are the contributions that you have extracted from the attached paper:
 {contributions}
 
-
-
-# Results
-The following is a great overview of the results of the paper.
-
-{results}
-
-
-# Method
-The following is a detailed description of the method used in the paper.
-
+Here is a deep dive on the method that you have written from the attached paper:
 {method}
 
+Here is a summary of the results that you have extracted from the attached paper:
+{results}
 
-# Ablation Studies
-The following is a description of the ablation studies that were performed.
+Here is a summary of the limitations that you have extracted from the attached paper:
+{limitations}
 
-{ablation_studies}
+You are an expert podcast host of a podcast called the AI Research Deep Dive. \
+The podcast is meant to have an engaging friendly conversational tone while being educational. \
+You have been given a pdf of a research paper as well as a summary of the contributions, method, results and limitations. \
+The task at hand is to synthesize the information into a coherent podcast. Specifically you are to write verbatim what is going \
+to be read by a text to speech engine. That means everything should be in plain english without any math symbols or markdown that \
+would not be readable by a text to speech engine. Avoid going deep into any math instead giving the user an overview of the math used \
+in plain english that anybody could understand. The podcast is expected to be between 10-15 minutes. Write out numbers in like 64 \
+to 'sixty four' and any acronyms should be spelled in all caps but avoid using if you can do so by expanding them.
 
-Importantly do not use any markdown or headers in your response including asterisks - section headers or anything else. All of the text should be in plain english that 
-can be spoken out loud. Additionally do not write out equations or math symbols, instead explain the relevant equations in natural english so the user 
-can understand the purpose of the equation, they do not need to know the exact values of the equations.
 
+
+I have also attached the research paper so reference it as you craft your responses. The contributions, method, results and limitations \
+are also listed for reference, make sure everything said is grounded in your understanding of the attached pdf.
+
+Here is a description of the sections that I want you to generate:
+
+1. Introduction. 
+The introduction should cover the "why" of the research paper. What makes this research paper important, what does it contribute to the community. \
+Additionally, feel free to give a preview of the results or why it is important, but this is meant to entice the listener on why they should spend \
+the next 10-15 minutes trying to understand the research paper.
+
+2. Methods.
+This part should cover exactly how the authors obtained their results. Your goal in this section is to give the listener a deep understanding \
+of exactly what the authors did. The listener wants to understand exactly what they did, assuming the audience is a person with a Master's in AI. \
+At the end of your explanation the listnee should have the necessary knowledge to sketch the pseudocode and \
+explain the method to others. Feel free to explore whether the method relies on a theoretical understanding or \
+empirical studies. Your task is to focus on this contribution in particular. The listener should be able to have a conversation \
+with another person at the end on how the authors obtained their results and what were some key steps they took in order to do so. \
+A key aspect to focus on is what makes this method different from other approaches and why is it advantageous.
+
+3. Results and limitations.
+The goal of this section is give the listener an understanding of how the authors chose to quantitively or qualitatively evaluate their method. \
+Bring up whatever is necessary to give the reader an understanding of the datasets and metrics used. Weaving into the conversation should be \
+your judgement on whether these were standard evaluation procedures or if they left something out that could have been used. Additonally, \
+discuss if the results back up the authors claims throughout the paper. Also discuss any limitations to the approach the authors used in the results \
+or even the method that you see as important to understanding the impact this paper will have.
+
+4. Conclusion.
+This section should serve as a wrap up for the podcast as a whole. Fill in any final holes or questions that the listener may have. \
+Additionally discuss the impact and implications the paper has on the research and or business community and what future work may look like to further improve the method. \
+Do not tease any future episodes just keep this podcast about the current paper at hand.
+
+
+Generate the section after thinking through your approach and what would be best to listen to as a podcast listener. After detailing your thoughts in the response start the \
+actual word for word generation that will be read by the text to speech engine with the string 'STARTING THE GENERATION NOW'. I will use that to split the response \
+automatically so it is extremely important you do that. Do not include any other text like 'Introduction' or anything else that resemble section titles. The response will be fed DIRECTLY \
+into a text to speech engine so every word will be read out loud after seeing the string 'STARTING THE GENERATION NOW'.
 """
 
 
-class PodcastScript(BaseModel):
-    section_type: str = Field(
-        description="The type of the podcast section exactly corresponding to what is in the text (e.g., '🔹 1. Intro (1–2 mins)', '🔹 2. Big Picture / Motivation (2–4 mins)')"
-    )
-    section: str = Field(
-        description="The word for word text of exactly what should be spoken for that podcast section. Do not use markdown or headers as this will be read aloud"
-    )
-
-
-additional_instructions = """Here is the content I have already generated: 
-
-{content}
-
-Continue generating the next section of the podcast script.
-"""
-
-
-def format_sections(sections: tuple[str, str]) -> str:
-    additional = ""
-    for idx, (section_type, section) in enumerate(sections):
-        additional += (
-            f"Idx: {idx + 1} \nSection Type: {section_type}\nSection: {section}\n\n"
-        )
-    return additional
-
-
-def generate_section(
+def generate_podcast(
     pdf_file_path: str,
-    deep_dive_contributions: str,
-    results: str,
-    ablation_studies: str,
+    contributions: list[str],
     method: str,
-    sections: tuple[str, str],
-    model: str = "gpt-4o-mini-2024-07-18",
-    idx: int = 0,
-    write_output: bool = False,
+    results: str,
+    limitations: str,
+    model: str = "gpt-4o-mini-2024-07-18"
 ) -> str:
-    prompt_to_be_used = general_generate_prompt
-
-    if len(sections) > 0:
-        content = format_sections(sections)
-        prompt_to_be_added = additional_instructions.format(content=content)
-        prompt_to_be_used = prompt_to_be_used + prompt_to_be_added
-
-    prompt = prompt_to_be_used.format(
-        contributions=deep_dive_contributions,
-        results=results,
-        ablation_studies=ablation_studies,
+    formatted_contributions = format_contributions(contributions)
+    input_to_the_model = general_generate_prompt.format(
+        contributions=formatted_contributions,
         method=method,
+        results=results,
+        limitations=limitations,
     )
-    input_text = [("pdf", pdf_file_path), ("text", prompt)]
-
-    response = generate_text_response(
-        input_contents=input_text, model=model, response_format=PodcastScript
-    )
-    if write_output:
-        write_json_file(f"saved_outputs/section_{model}_{idx}.json", response)
-    return (response["section_type"], response["section"])
-
-
-def generate_section_by_section(
-    pdf_file_path: str,
-    deep_dive_output: str,
-    results: str,
-    ablation_studies: str,
-    method: str,
-    start_generation: int = 0,
-    end_generation: int = 7,
-    model: str = "gpt-4o-mini-2024-07-18",
-    write_output: bool = False,
-) -> tuple[str, str]:
-    sections = []
-    for i in range(start_generation, end_generation):
-        section = generate_section(
-            pdf_file_path,
-            deep_dive_output,
-            results,
-            ablation_studies,
-            method,
-            sections,
-            model=model,
-            idx=i,
-            write_output=write_output,
-        )
-        sections.append(section)
-    return sections
+    input = [
+        ("pdf", pdf_file_path),
+        ("text", input_to_the_model),
+    ]
+    response = generate_text_response(input, model)
+    return response

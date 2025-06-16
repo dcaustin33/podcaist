@@ -2,6 +2,12 @@ import base64
 import json
 
 
+def format_contributions(contributions: list[str]) -> str:
+    if not contributions:
+        raise ValueError("Contributions list cannot be empty")
+    return "\n".join(f"- {contribution.strip()}" for contribution in contributions)
+
+
 def convert_pdf_to_base64(pdf_path: str) -> str:
     with open(pdf_path, "rb") as pdf_file:
         return base64.b64encode(pdf_file.read()).decode("utf-8")

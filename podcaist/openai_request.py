@@ -1,9 +1,10 @@
 import asyncio
 import json
 import os
+import time
 from typing import Any, Dict, List, Optional
 
-from openai import AsyncOpenAI, OpenAI
+from openai import AsyncOpenAI, OpenAI, RateLimitError
 from pydantic import BaseModel
 
 
@@ -28,16 +29,34 @@ def generate_openai_response(
 ) -> Dict[str, Any]:
     api_key = os.getenv("OPENAI_API_KEY")
     client = OpenAI(api_key=api_key)
-    if response_format:
-        completion = client.beta.chat.completions.parse(
-            model=model, messages=input_contents, response_format=response_format
-        )
-        return json.loads(completion.choices[0].message.parsed.model_dump_json())
-    else:
-        completion = client.chat.completions.create(
-            model=model, messages=input_contents
-        )
-        return completion.choices[0].message.content
+
+    max_retries = 5
+    base_delay = 1  # Start with 1 second
+
+    for attempt in range(max_retries):
+        try:
+            if response_format:
+                completion = client.beta.chat.completions.parse(
+                    model=model,
+                    messages=input_contents,
+                    response_format=response_format,
+                )
+                return json.loads(
+                    completion.choices[0].message.parsed.model_dump_json()
+                )
+            else:
+                completion = client.chat.completions.create(
+                    model=model, messages=input_contents
+                )
+                return completion.choices[0].message.content
+
+        except RateLimitError:
+            if attempt == max_retries - 1:  # Last attempt
+                raise  # Re-raise the last error if we're out of retries
+
+            delay = base_delay * (2**attempt)  # 1, 2, 4, 8, 16 seconds
+            time.sleep(delay)
+            continue
 
 
 def find_file_by_name(file_name: str) -> str:
@@ -72,31 +91,35 @@ async def generate_openai_response_async(
     • If `response_format` is a Pydantic model, we call the *structured‑output* beta
       helper and return the parsed dict.
     • Otherwise we return the raw string content.
+    • Implements exponential backoff for rate limit errors (429)
     """
     api_key = os.getenv("OPENAI_API_KEY")
     client = AsyncOpenAI(api_key=api_key)
-    if response_format:
-        completion = await client.beta.chat.completions.parse(
-            model=model,
-            messages=input_contents,
-            response_format=response_format,
-        )
-        parsed = completion.choices[0].message.parsed
-        # `parsed` is a Pydantic object; convert to dict then JSON‑safe str/dict.
-        return json.loads(parsed.model_dump_json())
-    else:
-        completion = await client.chat.completions.create(
-            model=model,
-            messages=input_contents,
-        )
-        return completion.choices[0].message.content
 
+    max_retries = 5
+    base_delay = 1  # Start with 1 second
 
-async def main():
-    prompts = [
-        [{"role": "user", "content": "Summarise HTTP/3 in one tweet."}],
-        [{"role": "user", "content": "Name three uses for AsyncIO."}],
-    ]
-    tasks = [generate_openai_response_async(p) for p in prompts]
-    for prompt, reply in zip(prompts, await asyncio.gather(*tasks)):
-        print(prompt[0]["content"], "→", reply)
+    for attempt in range(max_retries):
+        try:
+            if response_format:
+                completion = await client.beta.chat.completions.parse(
+                    model=model,
+                    messages=input_contents,
+                    response_format=response_format,
+                )
+                parsed = completion.choices[0].message.parsed
+                return json.loads(parsed.model_dump_json())
+            else:
+                completion = await client.chat.completions.create(
+                    model=model,
+                    messages=input_contents,
+                )
+                return completion.choices[0].message.content
+
+        except RateLimitError:
+            if attempt == max_retries - 1:  # Last attempt
+                raise  # Re-raise the last error if we're out of retries
+
+            delay = base_delay * (2**attempt)  # 1, 2, 4, 8, 16 seconds
+            await asyncio.sleep(delay)
+            continue

@@ -11,8 +11,12 @@ from podcaist.openai_request import (generate_openai_response,
 
 MODEL_TO_PROVIDER_MAP = {
     "gpt-4o-mini-2024-07-18": "openai",
-    "gemini-2.0-flash-lite-001": "google",
+    "o3-2025-04-16": "openai",
+    "o3-mini-2025-01-31": "openai",
+    "gpt-4.1-2025-04-14": "openai",
+    "gemini-2.5-pro-preview-06-05": "google",
     "gemini-2.0-flash-001": "google",
+    "gemini-2.0-flash-lite-001": "google",
 }
 
 PROVIDER_TO_FUNCTION_MAP = {

@@ -11,9 +11,11 @@ from pydantic import BaseModel
 from podcaist.utils import read_pdf_file_bytes
 
 
-api_key = os.getenv("GEMINI_API_KEY")
-client = genai.Client(api_key=api_key)
-aio = client.aio
+def get_gemini_client() -> genai.Client:
+    api_key = os.getenv("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
+    return client
+
 
 
 def get_pdf_for_prompt(pdf_path: str) -> bytes:
@@ -24,8 +26,7 @@ def get_pdf_for_prompt(pdf_path: str) -> bytes:
 def upload_pdf_and_cache(
     pdf_path: str, model: str = "gemini-2.0-flash-lite-001"
 ) -> str:
-    api_key = os.getenv("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
+    client = get_gemini_client()
     pdf_bytes = read_pdf_file_bytes(pdf_path)
     client_pdf_type = Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")
     document = client.files.upload(
@@ -42,14 +43,12 @@ def upload_pdf_and_cache(
 
 
 def list_cached_content() -> List[Dict[str, Any]]:
-    api_key = os.getenv("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
+    client = get_gemini_client()
     return client.caches.list()
 
 
 def delete_cached_content(cache_name: str) -> None:
-    api_key = os.getenv("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
+    client = get_gemini_client()
     client.caches.delete(cache_name)
 
 
@@ -58,8 +57,7 @@ def generate_gemini_response(
     model: str = "gemini-2.0-flash-lite-001",
     response_format: Optional[BaseModel] = None,
 ) -> str:
-    api_key = os.getenv("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
+    client = get_gemini_client()
 
     config = None
     if response_format:
@@ -81,6 +79,7 @@ async def generate_gemini_response_async(
     response_format: Optional[BaseModel] = None,
 ) -> str | Dict[str, Any]:
     """Generate a response (optionally JSON‑parsed) asynchronously."""
+    client = get_gemini_client()
     cfg = (
         GenerateContentConfig(
             response_mime_type="application/json",
@@ -90,7 +89,7 @@ async def generate_gemini_response_async(
         else None
     )
 
-    resp = await aio.models.generate_content(
+    resp = await client.aio.models.generate_content(
         model=model,
         contents=input_contents,
         config=cfg,
