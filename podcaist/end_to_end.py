@@ -4,18 +4,15 @@ import shutil
 import tempfile
 
 from podcaist.generate_audio import generate_audio
-from podcaist.generate_podcast_script import (
-    generate_podcast_script,
-    generate_podcast_script_async,
-)
+from podcaist.generate_podcast_script import generate_podcast_script_async
 from podcaist.pdf_utils import compress_pdf
 from podcaist.progress import Progress
 
 
 def generate_entire_podcast(
     pdf_path: str,
-    model: str = "gemini-2.0-flash-001",
-    audio_model: str = "kokoro",
+    model: str = "gemini-2.5-pro-preview-06-05",
+    audio_model: str = "eleven_labs",
     remote: bool = False,
     write_output: bool = False,
     save_locally: bool = False,
@@ -59,11 +56,17 @@ def generate_entire_podcast(
 
 
 if __name__ == "__main__":
+    pdf_name = "VJEPA.pdf"
+    pdf_path = (
+        "/Users/derek/Library/Mobile Documents/com~apple~CloudDocs/Desktop/ML Papers 2/papers_to_read/"
+        + pdf_name
+    )
     generate_entire_podcast(
-        "/Users/derek/Library/Mobile Documents/com~apple~CloudDocs/Desktop/ML Papers 2/papers_to_read/STT- Stateful Tracking with Transformers for Autonomous Driving.pdf",
-        model="gemini-2.0-flash-001",
+        pdf_path,
+        model="gemini-2.5-pro-preview-06-05",
         audio_model="eleven_labs",
         remote=True,
         save_locally=True,
         test_audio=False,
+        write_output=True,
     )

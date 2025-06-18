@@ -26,27 +26,44 @@ SEM_LIMIT = 10
 
 def generate_podcast_script(
     pdf_file_path: str,
-    generate_again: bool = True,
     model="gpt-4o-mini-2024-07-18",
     write_output: bool = False,
     progress: Progress | None = None,
 ) -> str:
 
     progress and progress.step("Summarizing the main contributions")
-    # contributions = summarize_contributions(pdf_file_path=pdf_file_path, model=model)
-    contributions = read_json_file(f"saved_outputs/contributions_{model}.json")
+    contributions = summarize_contributions(pdf_file_path=pdf_file_path, model=model)
 
-    # limitation_text = limitations(pdf_file_path, contributions, model)
-    # results_text = results(pdf_file_path, contributions, model)
-    # method_text = method(pdf_file_path, contributions, model)
-    method_text = read_json_file(f"saved_outputs/method_{model}.json")
-    results_text = read_json_file(f"saved_outputs/results_{model}.json")
-    limitation_text = read_json_file(f"saved_outputs/limitations_{model}.json")
-    # if write_output:
-    #     write_json_file(f"saved_outputs/contributions_{model}.json", contributions)
-    #     write_json_file(f"saved_outputs/limitations_{model}.json", limitation_text)
-    #     write_json_file(f"saved_outputs/method_{model}.json", method_text)
-    #     write_json_file(f"saved_outputs/results_{model}.json", results_text)
+    limitation_text = limitations(pdf_file_path, contributions, model)
+    results_text = results(pdf_file_path, contributions, model)
+    method_text = method(pdf_file_path, contributions, model)
+
+    podcast = generate_podcast(
+        pdf_file_path, contributions, method_text, results_text, limitation_text, model
+    )
+    if write_output:
+        write_text_file(f"saved_outputs/podcast_{model}.txt", podcast)
+    return podcast
+
+
+async def generate_podcast_script_async(
+    pdf_file_path: str,
+    model="gpt-4o-mini-2024-07-18",
+    write_output: bool = False,
+    progress: Progress | None = None,
+) -> str:
+
+    progress and progress.step("Summarizing the main contributions")
+    contributions = await summarize_contributions_async(
+        pdf_file_path=pdf_file_path, model=model
+    )
+
+    # Run these three operations concurrently
+    limitation_text, results_text, method_text = await asyncio.gather(
+        limitations_async(pdf_file_path, contributions, model),
+        results_async(pdf_file_path, contributions, model),
+        method_async(pdf_file_path, contributions, model),
+    )
 
     podcast = generate_podcast(
         pdf_file_path, contributions, method_text, results_text, limitation_text, model
