@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 from pydantic import BaseModel, Field
 
@@ -63,9 +64,22 @@ Do not tease any future episodes just keep this podcast about the current paper 
 Generate the section after thinking through your approach and what would be best to listen to as a podcast listener. After detailing your thoughts in the response start the \
 actual word for word generation that will be read by the text to speech engine with the string 'STARTING THE GENERATION NOW'. I will use that to split the response \
 automatically so it is extremely important you do that. Do not include any other text like 'Introduction' or anything else that resemble section titles. The response will be fed DIRECTLY \
-into a text to speech engine so every word will be read out loud after seeing the string 'STARTING THE GENERATION NOW'. Do not include anything about intro music or anything else \
+into a text to speech engine so every word will be read out loud after seeing the string 'STARTING THE GENERATION NOW'. Do NOT include anything about intro music or anything else \
 of the sort that is not considered part of the podcast content. Do not use asterisks or any other markdown formatting.
 """
+
+
+def remove_music_lines(text: str) -> str:
+    """Remove any lines that contain the word 'music' inside parentheses."""
+    lines = text.split('\n')
+    filtered_lines = []
+    
+    for line in lines:
+        # Check if the line contains 'music' inside parentheses
+        if not re.search(r'\([^)]*music[^)]*\)', line, re.IGNORECASE):
+            filtered_lines.append(line)
+    
+    return '\n'.join(filtered_lines)
 
 
 def generate_podcast(
@@ -89,4 +103,5 @@ def generate_podcast(
     ]
     response = generate_text_response(input, model)
     response = response.replace("STARTING THE GENERATION NOW", "")
+    response = remove_music_lines(response)
     return response

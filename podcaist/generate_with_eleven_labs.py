@@ -1,6 +1,7 @@
 import os
 import shutil
 import tempfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List
 
 from elevenlabs import save
@@ -37,6 +38,7 @@ def generate_eleven_labs_audio(
     model_id: str = "eleven_multilingual_v2",
     output_format: str = "mp3_44100_128",
     remote: bool = True,
+    max_workers: int = 4,
 ) -> str:
 
     assert remote, "Eleven Labs is not supported locally"
@@ -46,20 +48,25 @@ def generate_eleven_labs_audio(
     # Split text into chunks if needed
     text_chunks = split_text_at_line_breaks(text)
 
-    # Process each chunk and combine the audio files
-    temp_files = []
-    # TODO: parallelize this
-    for chunk in text_chunks:
+    # Process each chunk in parallel and combine the audio files
+    def generate_chunk_audio(chunk: str) -> str:
         audio = client.text_to_speech.convert(
             text=chunk,
             voice_id=voice,
             model_id=model_id,
             output_format=output_format,
         )
-
+        
         mp3_temp_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
         save(audio, mp3_temp_file.name)
-        temp_files.append(mp3_temp_file.name)
+        return mp3_temp_file.name
+
+    temp_files = []
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_chunk = {executor.submit(generate_chunk_audio, chunk): chunk for chunk in text_chunks}
+        for future in as_completed(future_to_chunk):
+            temp_file = future.result()
+            temp_files.append(temp_file)
 
     # If we only have one chunk, return it directly
     if len(temp_files) == 1:
