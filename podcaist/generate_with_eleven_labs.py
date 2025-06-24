@@ -89,3 +89,11 @@ def generate_eleven_labs_audio(
 
     return final_temp_file.name
 
+
+if __name__ == "__main__":
+    text = read_text_file(
+        "/Users/derek/Desktop/podcaist/podcaist/saved_outputs/Samwise_gemini-2.5-flash_gemini-2.5-flash.txt"
+    )
+    temp_file = generate_eleven_labs_audio(text)
+    local_file_path = "./podcast_outputs/Samwise_gemini-2.5-flash_gemini-2.5-flash_eleven_v3.mp3"
+    shutil.copy2(temp_file, local_file_path)

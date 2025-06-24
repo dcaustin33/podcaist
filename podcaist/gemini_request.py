@@ -11,14 +11,17 @@ from podcaist.utils import read_pdf_file_bytes
 
 MODEL_TO_CACHED_TOKEN_PRICE = {
     "gemini-2.5-pro": 0.31,
+    "gemini-2.5-flash": 0.075,
 }
 
 MODEL_TO_INPUT_PRICE_PER_MILLION = {
     "gemini-2.5-pro": 1.25,
+    "gemini-2.5-flash": 0.3,
 }
 
 MODEL_TO_OUTPUT_PRICE_PER_MILLION = {
     "gemini-2.5-pro": 10,
+    "gemini-2.5-flash": 2.5,
 }
 
 

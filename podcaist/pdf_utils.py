@@ -1,5 +1,6 @@
 import io
-import fitz          # PyMuPDF
+
+import fitz  # PyMuPDF
 from PIL import Image
 
 
@@ -7,9 +8,9 @@ def compress_pdf(
     input_path: str,
     output_path: str,
     *,
-    target_dpi: int | None = 50,   # down-sample when image has DPI data
-    max_dim_px: int = 800,         # absolute pixel cap for width/height
-    jpeg_quality: int = 30,         # lower = smaller file / lower fidelity
+    target_dpi: int | None = 50,  # down-sample when image has DPI data
+    max_dim_px: int = 800,  # absolute pixel cap for width/height
+    jpeg_quality: int = 30,  # lower = smaller file / lower fidelity
     force_grayscale: bool = False,  # scan-like docs shrink dramatically
 ):
     """
@@ -35,9 +36,9 @@ def compress_pdf(
     doc = fitz.open(input_path)
 
     # -------- prune non-essential objects --------
-    doc.set_metadata({})          # clears Info dictionary
+    doc.set_metadata({})  # clears Info dictionary
     if hasattr(doc, "del_xml_metadata"):
-        doc.del_xml_metadata()    # XMP (PyMuPDF ≥ 1.23)
+        doc.del_xml_metadata()  # XMP (PyMuPDF ≥ 1.23)
 
     # attachments:
     for fname in list(getattr(doc, "embeddedFileNames", [])):
@@ -51,47 +52,72 @@ def compress_pdf(
         # -------- recompress every raster image on the page --------
         for img in page.get_images(full=True):
             xref = img[0]
-            pix = fitz.Pixmap(doc, xref)
+            try:
+                pix = fitz.Pixmap(doc, xref)
 
-            # ---------- pillow conversion ----------
-            mode = "RGBA" if pix.alpha else "RGB"
-            pil = Image.frombytes(mode, (pix.width, pix.height), pix.samples)
+                # Skip if pixmap is invalid or has no samples
+                if not pix or not pix.samples or pix.width <= 0 or pix.height <= 0:
+                    print(f"Warning: Skipping invalid image at xref {xref}")
+                    continue
 
-            # flatten alpha → white background
-            if mode == "RGBA":
-                bg = Image.new("RGB", pil.size, "white")
-                bg.paste(pil, mask=pil.split()[-1])
-                pil = bg
+                # Validate that we have enough samples for the image dimensions
+                expected_samples = pix.width * pix.height * pix.n
+                if len(pix.samples) < expected_samples:
+                    print(
+                        f"Warning: Insufficient image data at xref {xref}. Expected {expected_samples} samples, got {len(pix.samples)}"
+                    )
+                    continue
 
-            # optional grayscale
-            if force_grayscale and pil.mode != "L":
-                pil = pil.convert("L")
+                # ---------- pillow conversion ----------
+                mode = "RGBA" if pix.alpha else "RGB"
+                try:
+                    pil = Image.frombytes(mode, (pix.width, pix.height), pix.samples)
+                except ValueError as e:
+                    print(f"Warning: Failed to create PIL image from xref {xref}: {e}")
+                    continue
 
-            # ---------- adaptive down-sampling ----------
-            scale = 1.0
-            if target_dpi and getattr(pix, "xres", 0) > target_dpi > 0:
-                scale = target_dpi / pix.xres
+                # flatten alpha → white background
+                if mode == "RGBA":
+                    bg = Image.new("RGB", pil.size, "white")
+                    bg.paste(pil, mask=pil.split()[-1])
+                    pil = bg
 
-            if max(pil.size) * scale > max_dim_px:
-                scale = max_dim_px / max(pil.size)
+                # optional grayscale
+                if force_grayscale and pil.mode != "L":
+                    pil = pil.convert("L")
 
-            if scale < 1.0:  # resize only if we’re shrinking
-                new_size = (int(pil.width * scale), int(pil.height * scale))
-                # Ensure dimensions are at least 1 pixel
-                new_size = (max(1, new_size[0]), max(1, new_size[1]))
-                pil = pil.resize(new_size, Image.LANCZOS)
+                # ---------- adaptive down-sampling ----------
+                scale = 1.0
+                if target_dpi and getattr(pix, "xres", 0) > target_dpi > 0:
+                    scale = target_dpi / pix.xres
 
-            # ---------- JPEG re-encode ----------
-            buf = io.BytesIO()
-            pil.save(buf, format="JPEG", quality=jpeg_quality, optimize=True)
-            page.replace_image(xref, stream=buf.getvalue())
-            buf.close()
-            pix = None  # free C resources
+                if max(pil.size) * scale > max_dim_px:
+                    scale = max_dim_px / max(pil.size)
+
+                if scale < 1.0:  # resize only if we're shrinking
+                    new_size = (int(pil.width * scale), int(pil.height * scale))
+                    # Ensure dimensions are at least 1 pixel
+                    new_size = (max(1, new_size[0]), max(1, new_size[1]))
+                    pil = pil.resize(new_size, Image.LANCZOS)
+
+                # ---------- JPEG re-encode ----------
+                buf = io.BytesIO()
+                pil.save(buf, format="JPEG", quality=jpeg_quality, optimize=True)
+                page.replace_image(xref, stream=buf.getvalue())
+                buf.close()
+
+            except Exception as e:
+                print(f"Warning: Failed to process image at xref {xref}: {e}")
+                continue
+            finally:
+                # Always free C resources
+                if "pix" in locals():
+                    pix = None
 
     # ---------- final save ----------
     doc.save(
         output_path,
-        garbage=4,     # remove unused & compress object streams
+        garbage=4,  # remove unused & compress object streams
         deflate=True,  # lossless deflate of font & content streams
         incremental=False,
     )

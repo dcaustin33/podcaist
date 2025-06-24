@@ -66,11 +66,11 @@ def generate_entire_podcast(
 
 if __name__ == "__main__":
     icloud_path = "/Users/derek/Library/Mobile Documents/com~apple~CloudDocs/Desktop/ML Papers 2/papers_to_read"
-    pdf_name = "Visual Pretraining Using RL.pdf"
+    pdf_name = "Samwise.pdf"
     pdf_path = os.path.join(icloud_path, pdf_name)
     temp_file = generate_entire_podcast(
         pdf_path,
-        model="gemini-2.5-pro",
+        model="gemini-2.5-flash",
         audio_model="eleven_labs",
         remote=True,
         save_script_locally=True,
