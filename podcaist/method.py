@@ -13,7 +13,9 @@ understandable over audio, ie provide a explanation in plain english. Dive deep 
 of the method and aim to have a summary that if a human were to read it, they would be able to \
 understand the method and how it contributed to the results. You do not have to go sequentially \
 throught hte contributions as some of the method can contribute to multiple so instead aim \
-for a holistic understand of the method.
+for a holistic understand of the method. \
+After answering do a check to see what further questions the listener may have now. What have you not covered \
+completely and what details would they need to know to understand the method better.
 
 Here are the contributions: 
 {contributions}

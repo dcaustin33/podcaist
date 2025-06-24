@@ -1,21 +1,31 @@
 import asyncio
 import json
-from typing import Any, Dict, List, Optional
 import os
+from typing import Any, Dict, List, Optional
 
 from google import genai
-from google.genai.types import (CreateCachedContentConfig,
-                                GenerateContentConfig, Part)
+from google.genai.types import CreateCachedContentConfig, GenerateContentConfig, Part
 from pydantic import BaseModel
 
 from podcaist.utils import read_pdf_file_bytes
+
+MODEL_TO_CACHED_TOKEN_PRICE = {
+    "gemini-2.5-pro": 0.31,
+}
+
+MODEL_TO_INPUT_PRICE_PER_MILLION = {
+    "gemini-2.5-pro": 1.25,
+}
+
+MODEL_TO_OUTPUT_PRICE_PER_MILLION = {
+    "gemini-2.5-pro": 10,
+}
 
 
 def get_gemini_client() -> genai.Client:
     api_key = os.getenv("GEMINI_API_KEY")
     client = genai.Client(api_key=api_key)
     return client
-
 
 
 def get_pdf_for_prompt(pdf_path: str) -> bytes:
@@ -52,6 +62,34 @@ def delete_cached_content(cache_name: str) -> None:
     client.caches.delete(cache_name)
 
 
+def generate_price_estimate(
+    model: str,
+    input_tokens: int,
+    cached_tokens: int,
+    output_tokens: int,
+    thoughts_tokens: int,
+) -> float:
+    input_tokens = 0 if input_tokens is None else input_tokens
+    cached_tokens = 0 if cached_tokens is None else cached_tokens
+    output_tokens = 0 if output_tokens is None else output_tokens
+    thoughts_tokens = 0 if thoughts_tokens is None else thoughts_tokens
+    input_price = (
+        MODEL_TO_INPUT_PRICE_PER_MILLION[model]
+        * (input_tokens - cached_tokens)
+        / 1000000
+    )
+    cached_price = MODEL_TO_CACHED_TOKEN_PRICE[model] * cached_tokens / 1000000
+    output_price = (
+        MODEL_TO_OUTPUT_PRICE_PER_MILLION[model]
+        * (output_tokens + thoughts_tokens)
+        / 1000000
+    )
+    print(
+        f" Total price: {input_price + cached_price + output_price}. Input price: {input_price}, cached price: {cached_price}, output price: {output_price}"
+    )
+    return input_price + cached_price + output_price
+
+
 def generate_gemini_response(
     input_contents: list,
     model: str = "gemini-2.0-flash-lite-001",
@@ -65,12 +103,18 @@ def generate_gemini_response(
             response_mime_type="application/json",
             response_schema=response_format,
         )
-
-    output = client.models.generate_content(
+    resp = client.models.generate_content(
         model=model, contents=input_contents, config=config
     )
+    generate_price_estimate(
+        model,
+        resp.usage_metadata.prompt_token_count,
+        resp.usage_metadata.cached_content_token_count,
+        resp.usage_metadata.candidates_token_count,
+        resp.usage_metadata.thoughts_token_count,
+    )
 
-    return json.loads(output.text) if response_format else output.text
+    return json.loads(resp.text) if response_format else resp.text
 
 
 async def generate_gemini_response_async(
@@ -94,6 +138,13 @@ async def generate_gemini_response_async(
         contents=input_contents,
         config=cfg,
     )
+    generate_price_estimate(
+        model,
+        resp.usage_metadata.prompt_token_count,
+        resp.usage_metadata.cached_content_token_count,
+        resp.usage_metadata.candidates_token_count,
+        resp.usage_metadata.thoughts_token_count,
+    )
     return json.loads(resp.text) if response_format else resp.text
 
 
@@ -107,3 +158,11 @@ async def main() -> None:
     tasks = [generate_gemini_response_async(p) for p in prompts]
     for prompt, reply in zip(prompts, await asyncio.gather(*tasks)):
         print(f"{prompt}\n→ {reply}\n")
+
+
+if __name__ == "__main__":
+    input_contents = [
+        ("text", "What is the main idea of the paper?"),
+    ]
+    output = generate_gemini_response(input_contents, model="gemini-2.5-pro")
+    print(output)

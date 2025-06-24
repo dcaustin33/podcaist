@@ -74,9 +74,9 @@ async def generate_podcast_script_async(
 
 
 if __name__ == "__main__":
-    possible_models = ["o3-2025-04-16", "gemini-2.5-pro-preview-06-05"]
+    possible_models = ["o3-2025-04-16", "gemini-2.5-pro"]
     model = possible_models[0]
-    pdf_name = "Learning Physically Simulated Tennis Skills from Broadcast Videos.pdf"
+    pdf_name = "Evolutionary Policy Optimization.pdf"
     pdf_path = (
         "/Users/derek/Library/Mobile Documents/com~apple~CloudDocs/Desktop/ML Papers 2/papers_to_read/"
         + pdf_name

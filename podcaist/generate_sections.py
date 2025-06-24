@@ -23,7 +23,7 @@ You have been given a pdf of a research paper as well as a summary of the contri
 The task at hand is to synthesize the information into a coherent podcast. Specifically you are to write verbatim what is going \
 to be read by a text to speech engine. That means everything should be in plain english without any math symbols or markdown that \
 would not be readable by a text to speech engine. Avoid going deep into any math instead giving the user an overview of the math used \
-in plain english that anybody could understand. The podcast is expected to be between 10-15 minutes. Write out numbers in like 64 \
+in plain english that anybody could understand. The podcast is expected to be between 20-30 minutes. Write out numbers in like 64 \
 to 'sixty four' and any acronyms should be spelled in all caps but avoid using if you can do so by expanding them.
 
 
@@ -36,7 +36,7 @@ Here is a description of the sections that I want you to generate:
 1. Introduction. 
 The introduction should cover the "why" of the research paper. What makes this research paper important, what does it contribute to the community. \
 Additionally, feel free to give a preview of the results or why it is important, but this is meant to entice the listener on why they should spend \
-the next 10-15 minutes trying to understand the research paper.
+the next 20-30 minutes trying to understand the research paper.
 
 2. Methods.
 This part should cover exactly how the authors obtained their results. Your goal in this section is to give the listener a deep understanding \
@@ -45,7 +45,7 @@ At the end of your explanation the listnee should have the necessary knowledge t
 explain the method to others. Feel free to explore whether the method relies on a theoretical understanding or \
 empirical studies. Your task is to focus on this contribution in particular. The listener should be able to have a conversation \
 with another person at the end on how the authors obtained their results and what were some key steps they took in order to do so. \
-A key aspect to focus on is what makes this method different from other approaches and why is it advantageous.
+A key aspect to focus on is what makes this method different from other approaches and why is it advantageous. This should be the main focus of the podcast.
 
 3. Results and limitations.
 The goal of this section is give the listener an understanding of how the authors chose to quantitively or qualitatively evaluate their method. \
@@ -78,7 +78,7 @@ You have been given a pdf of a research paper. \
 The task at hand is to synthesize the information into a coherent podcast. Specifically you are to write verbatim what is going \
 to be read by a text to speech engine. That means everything should be in plain english without any math symbols or markdown that \
 would not be readable by a text to speech engine. Avoid going deep into any math instead giving the user an overview of the math used \
-in plain english that anybody could understand. The podcast is expected to be between 10-15 minutes. Write out numbers in like 64 \
+in plain english that anybody could understand. The podcast is expected to be between 20-30 minutes. Write out numbers in like 64 \
 to 'sixty four' and any acronyms should be spelled in all caps but avoid using if you can do so by expanding them.
 
 
@@ -90,7 +90,7 @@ Here is a description of the sections that I want you to generate:
 1. Introduction. 
 The introduction should cover the "why" of the research paper. What makes this research paper important, what does it contribute to the community. \
 Additionally, feel free to give a preview of the results or why it is important, but this is meant to entice the listener on why they should spend \
-the next 10-15 minutes trying to understand the research paper.
+the next 20-30 minutes trying to understand the research paper.
 
 2. Methods.
 This part should cover exactly how the authors obtained their results. Your goal in this section is to give the listener a deep understanding \
@@ -99,7 +99,7 @@ At the end of your explanation the listnee should have the necessary knowledge t
 explain the method to others. Feel free to explore whether the method relies on a theoretical understanding or \
 empirical studies. Your task is to focus on this contribution in particular. The listener should be able to have a conversation \
 with another person at the end on how the authors obtained their results and what were some key steps they took in order to do so. \
-A key aspect to focus on is what makes this method different from other approaches and why is it advantageous.
+A key aspect to focus on is what makes this method different from other approaches and why is it advantageous. This should be the main focus of the podcast.
 
 3. Results and limitations.
 The goal of this section is give the listener an understanding of how the authors chose to quantitively or qualitatively evaluate their method. \

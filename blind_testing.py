@@ -25,8 +25,8 @@ from podcaist.utils import format_contributions, write_text_file
 
 # Available models for testing
 AVAILABLE_MODELS = [
-    "o3-2025-04-16",
-    "gemini-2.5-pro-preview-06-05",
+    # "o3-2025-04-16",
+    "gemini-2.5-pro",
 ]
 
 
@@ -59,7 +59,10 @@ class BlindTester:
 
     def select_models_for_paper(self) -> Tuple[str, str]:
         """Randomly select 2 different models for a paper"""
-        return tuple(random.sample(AVAILABLE_MODELS, 2))
+        if len(AVAILABLE_MODELS) < 2:
+            return tuple(AVAILABLE_MODELS[0] for _ in range(2))
+        else:
+            return tuple(random.sample(AVAILABLE_MODELS, 2))
 
     def generate_with_context(self, pdf_path: str, model: str) -> str:
         """Generate podcast using full context pipeline"""
@@ -73,6 +76,11 @@ class BlindTester:
         return generate_podcast(
             pdf_path, contributions, method_text, results_text, limitation_text, model
         )
+
+    def generate_without_context(self, pdf_path: str, model: str) -> str:
+        """Generate podcast using full context pipeline"""
+        # Generate all analysis components
+        return generate_podcast(pdf_path, None, None, None, None, model)
 
     def process_paper(self, pdf_path: str, pdf_name: str) -> List[dict]:
         """Process a single paper with random model selection and both context settings"""
@@ -88,7 +96,7 @@ class BlindTester:
         try:
             # Generate 4 variants: 2 models × 2 context settings
             for model in [model1, model2]:
-                for context_flag in [True]:
+                for context_flag in [True, False]:
                     test_id = self.generate_test_id()
                     script_filename = f"{test_id}.txt"
 
@@ -96,7 +104,9 @@ class BlindTester:
                     if context_flag:
                         script = self.generate_with_context(compressed_pdf.name, model)
                     else:
-                        raise ValueError("Context flag must be True")
+                        script = self.generate_without_context(
+                            compressed_pdf.name, model
+                        )
 
                     # Save script with non-descriptive filename
                     script_path = self.output_dir / script_filename
@@ -170,8 +180,8 @@ class BlindTester:
 if __name__ == "__main__":
 
     pdf_directory = "/Users/derek/Desktop/podcaist/podcaist/pdf_directory"
-    pdf_names = ["v-jepa2.pdf"]
-    output_directory = "/Users/derek/Desktop/podcaist/podcaist/blind_test_results3"
+    pdf_names = ["v-jepa2.pdf", "Swin-Transformer.pdf", "Gaussian Splat.pdf"]
+    output_directory = "/Users/derek/Desktop/podcaist/podcaist/blind_test_results4"
 
     # Initialize tester
     tester = BlindTester(output_directory)

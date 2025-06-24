@@ -84,9 +84,9 @@ def generate_eleven_labs_audio(
 
 
 if __name__ == "__main__":
-    podcast_title = "NuiScene"
+    podcast_title = "continuous_thought"
     text = read_text_file(
-        "/Users/derek/Desktop/podcaist/podcaist/saved_outputs/podcast_gemini-2.5-pro-preview-06-05.txt"
+        "/Users/derek/Desktop/podcaist/podcaist/saved_outputs/gemini_v2_5_report_gemini-2.5-pro_gemini-2.5-pro.txt"
     )
     temp_file = generate_eleven_labs_audio(podcast_title, text)
 
