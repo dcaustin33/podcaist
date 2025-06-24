@@ -34,7 +34,7 @@ def split_text_at_line_breaks(text: str, max_length: int = 3000) -> List[str]:
 
 def generate_eleven_labs_audio(
     text: str,
-    voice: str = "G17SuINrv2H9FC6nvetn",
+    voice: str = "nPczCjzI2devNBz1zQrb",
     model_id: str = "eleven_flash_v2_5",
     output_format: str = "mp3_44100_128",
     remote: bool = True,
@@ -92,8 +92,8 @@ def generate_eleven_labs_audio(
 
 if __name__ == "__main__":
     text = read_text_file(
-        "/Users/derek/Desktop/podcaist/podcaist/saved_outputs/Samwise_gemini-2.5-flash_gemini-2.5-flash.txt"
+        "/Users/derek/Desktop/podcaist/podcaist/saved_outputs/gemini_v2_5_report_gemini-2.5-pro_gemini-2.5-pro.txt"
     )
     temp_file = generate_eleven_labs_audio(text)
-    local_file_path = "./podcast_outputs/Samwise_gemini-2.5-flash_gemini-2.5-flash_eleven_v3.mp3"
+    local_file_path = "./podcast_outputs/gemini_v2_5_report_gemini-2.5-pro_gemini-2.5-pro.mp3"
     shutil.copy2(temp_file, local_file_path)
