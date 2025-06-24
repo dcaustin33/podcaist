@@ -10,4 +10,5 @@ podcast_mapping = {
 def generate_audio(
     podcast_title: str, text: str, audio_model: str = "kokoro", remote: bool = False
 ) -> None:
-    return podcast_mapping[audio_model](podcast_title, text, remote=remote)
+    """The remote flag is for kokoro on whether to generate the audio locally or on the cloud"""
+    return podcast_mapping[audio_model](text=text, remote=remote)

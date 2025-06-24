@@ -54,10 +54,8 @@ def generate_kokoro_audio_local(
 
 
 def generate_kokoro_audio(
-    podcast_title: str,
     text: str,
     voice: str = "af_heart",
-    output_path: str = "./podcast_outputs",
     remote: bool = False,
 ) -> None:
     if remote:
@@ -71,8 +69,6 @@ def generate_kokoro_audio(
         wav_temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=True)
         sf.write(wav_temp_file.name, combined_audio, 24000)
         wav_temp_file.flush()
-
-        os.makedirs(output_path, exist_ok=True)
 
         mp3_temp_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
         pydub.AudioSegment.from_wav(wav_temp_file.name).export(

@@ -1,19 +1,19 @@
 from podcaist.model_garden import generate_text_response, generate_text_response_async
 from podcaist.utils import format_contributions
 
-prompt = """Attached is a pdf of a research paper. Here are what I think the main contributions are \
-from the paper. I want you to dive into the results and answer the question of whether the results \
-back up the authors claims. Dive deep into details about what metrics were used and show your \
-thought process about whether these metrics are solid for the case at hand or if they leave something \
-to be desired.
+prompt = """Attached is a research paper that I am seeking a deeper understanding of. \
+I want you to examine the authors stated contributions as well as the contributions listed below \
+and decide whether any limitations to their approach of how they evaluated their method or if any \
+of their claims are unsubstantiated. You do not have to be harsh but if there are holes in \
+the paper I want you to point them out. Feel free to also not include any holes if you tink it is a \
+great paper.
 
-Here are the contributions listed:
+Here are the contributions: 
 {contributions}
 """
 
 
-
-def results(
+def limitations(
     pdf_file_path: str, contributions: list[str], model: str = "gpt-4o-mini-2024-07-18"
 ) -> str:
     formatted_contributions = format_contributions(contributions)
@@ -28,7 +28,7 @@ def results(
     return response
 
 
-async def results_async(
+async def limitations_async(
     pdf_file_path: str, contributions: list[str], model: str = "gpt-4o-mini-2024-07-18"
 ) -> str:
     formatted_contributions = format_contributions(contributions)
