@@ -1,8 +1,0 @@
-test_id,original_pdf_name,model,context_flag,script_filename,generation_timestamp
-test_001,v-jepa2.pdf,gemini-2.5-pro-preview-06-05,True,test_001.txt,2025-06-17T12:28:49.872097
-test_002,v-jepa2.pdf,gemini-2.5-pro-preview-06-05,False,test_002.txt,2025-06-17T12:29:59.797491
-test_003,v-jepa2.pdf,gemini-2.5-pro-preview-06-05,True,test_003.txt,2025-06-17T12:35:03.026015
-test_005,Gaussian Splat.pdf,gemini-2.5-pro-preview-06-05,True,test_005.txt,2025-06-17T12:39:50.461515
-test_006,Gaussian Splat.pdf,gemini-2.5-pro-preview-06-05,False,test_006.txt,2025-06-17T12:41:02.684620
-test_007,Gaussian Splat.pdf,gemini-2.5-pro-preview-06-05,True,test_007.txt,2025-06-17T12:45:28.992049
-test_008,Gaussian Splat.pdf,gemini-2.5-pro-preview-06-05,False,test_008.txt,2025-06-17T12:46:37.152940
