@@ -1,4 +1,5 @@
 import os
+import shutil
 import tempfile
 from typing import List
 
@@ -32,7 +33,7 @@ def split_text_at_line_breaks(text: str, max_length: int = 3000) -> List[str]:
 
 def generate_eleven_labs_audio(
     text: str,
-    voice: str = "nPczCjzI2devNBz1zQrb",
+    voice: str = "G17SuINrv2H9FC6nvetn",
     model_id: str = "eleven_multilingual_v2",
     output_format: str = "mp3_44100_128",
     remote: bool = True,
@@ -80,3 +81,12 @@ def generate_eleven_labs_audio(
         os.unlink(temp_file)
 
     return final_temp_file.name
+
+
+if __name__ == "__main__":
+    text = read_text_file(
+        "/Users/derek/Desktop/podcaist/podcaist/saved_outputs/Visual Pretraining Using RL_gemini-2.5-pro_gemini-2.5-pro.txt"
+    )
+    temp_file = generate_eleven_labs_audio(text)
+    local_file_path = "./podcast_outputs/Visual Pretraining Using RL_gemini-2.5-pro_gemini-2.5-pro.mp3"
+    shutil.copy2(temp_file, local_file_path)
