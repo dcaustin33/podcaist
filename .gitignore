@@ -5,3 +5,5 @@ podcaist/podcast_outputs/*
 podcaist/saved_outputs/*
 *.pdf
 *.claude
+__pycache__/
+*.pyc
