@@ -70,29 +70,23 @@ of the sort that is not considered part of the podcast content. Do not use aster
 
 def generate_podcast(
     pdf_file_path: str,
-    contributions: Optional[list[str]],
-    method: Optional[str],
-    results: Optional[str],
-    limitations: Optional[str],
+    contributions: list[str],
+    method: str,
+    results: str,
+    limitations: str,
     model: str = "gemini-2.5-pro"
 ) -> str:
-    if contributions is not None:
-        formatted_contributions = format_contributions(contributions)
-        input_to_the_model = general_generate_prompt.format(
-            contributions=formatted_contributions,
-            method=method,
-            results=results,
-            limitations=limitations,
-        )
-        input = [
-            ("pdf", pdf_file_path),
-            ("text", input_to_the_model),
-        ]
-    else:
-        input = [
-            ("pdf", pdf_file_path),
-            ("text", general_generate_prompt_no_context)
-        ]
+    formatted_contributions = format_contributions(contributions)
+    input_to_the_model = general_generate_prompt.format(
+        contributions=formatted_contributions,
+        method=method,
+        results=results,
+        limitations=limitations,
+    )
+    input = [
+        ("pdf", pdf_file_path),
+        ("text", input_to_the_model),
+    ]
     response = generate_text_response(input, model)
     response = response.replace("STARTING THE GENERATION NOW", "")
     return response
