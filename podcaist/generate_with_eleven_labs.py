@@ -31,12 +31,10 @@ def split_text_at_line_breaks(text: str, max_length: int = 3000) -> List[str]:
 
 
 def generate_eleven_labs_audio(
-    podcast_title: str,
     text: str,
     voice: str = "nPczCjzI2devNBz1zQrb",
     model_id: str = "eleven_multilingual_v2",
     output_format: str = "mp3_44100_128",
-    output_path: str = "./podcast_outputs",
     remote: bool = True,
 ) -> str:
 

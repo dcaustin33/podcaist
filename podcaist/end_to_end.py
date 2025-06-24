@@ -15,7 +15,6 @@ def generate_entire_podcast(
     model: str = "gemini-2.5-pro",
     audio_model: str = "eleven_labs",
     remote: bool = False,
-    write_output: bool = False,
     save_script_locally: bool = False,
     local_output_path: str = "./podcast_outputs",
     progress: Progress | None = None,
@@ -34,7 +33,6 @@ def generate_entire_podcast(
                 compressed_pdf_path,
                 model=model,
                 progress=progress,
-                write_output=write_output,
             )
         )
 
@@ -73,6 +71,4 @@ if __name__ == "__main__":
         audio_model="eleven_labs",
         remote=True,
         save_script_locally=True,
-        test_audio=False,
-        write_output=True,
     )
