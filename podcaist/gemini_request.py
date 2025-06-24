@@ -158,11 +158,3 @@ async def main() -> None:
     tasks = [generate_gemini_response_async(p) for p in prompts]
     for prompt, reply in zip(prompts, await asyncio.gather(*tasks)):
         print(f"{prompt}\n→ {reply}\n")
-
-
-if __name__ == "__main__":
-    input_contents = [
-        ("text", "What is the main idea of the paper?"),
-    ]
-    output = generate_gemini_response(input_contents, model="gemini-2.5-pro")
-    print(output)

@@ -16,7 +16,7 @@ def generate_entire_podcast(
     audio_model: str = "eleven_labs",
     remote: bool = False,
     write_output: bool = False,
-    save_locally: bool = False,
+    save_script_locally: bool = False,
     local_output_path: str = "./podcast_outputs",
     progress: Progress | None = None,
     test_audio: bool = False,
@@ -42,14 +42,14 @@ def generate_entire_podcast(
     else:
         podcast_script = "This is a test of the audio system. It should be able to generate audio from a script."
 
-    if save_locally:
+    if save_script_locally:
         write_text_file(f"saved_outputs/{podcast_title}_{model}.txt", podcast_script)
 
     temp_file_name = generate_audio(
         podcast_title, podcast_script, audio_model, remote=remote
     )
 
-    if save_locally and temp_file_name:
+    if save_script_locally and temp_file_name:
         progress and progress.step("Saving audio locally")
         os.makedirs(local_output_path, exist_ok=True)
 
@@ -66,17 +66,13 @@ def generate_entire_podcast(
 
 
 if __name__ == "__main__":
-    pdf_name = "Fast3r.pdf"
-    pdf_path = (
-        "/Users/derek/Library/Mobile Documents/com~apple~CloudDocs/Desktop/ML Papers 2/papers_to_read/"
-        + pdf_name
-    )
+    pdf_path = ""
     generate_entire_podcast(
         pdf_path,
         model="gemini-2.5-pro",
         audio_model="eleven_labs",
         remote=True,
-        save_locally=True,
+        save_script_locally=True,
         test_audio=False,
         write_output=True,
     )

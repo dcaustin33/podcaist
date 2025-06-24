@@ -15,6 +15,7 @@ MODEL_TO_PROVIDER_MAP = {
     "o3-mini-2025-01-31": "openai",
     "gpt-4.1-2025-04-14": "openai",
     "gemini-2.5-pro": "google",
+    "gemini-2.5-flash": "google",
     "gemini-2.0-flash-001": "google",
     "gemini-2.0-flash-lite-001": "google",
 }

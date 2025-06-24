@@ -1,5 +1,3 @@
-import asyncio
-
 from podcaist.contributions import format_contributions
 from podcaist.model_garden import generate_text_response, generate_text_response_async
 

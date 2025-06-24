@@ -49,6 +49,7 @@ def generate_eleven_labs_audio(
 
     # Process each chunk and combine the audio files
     temp_files = []
+    # TODO: parallelize this
     for chunk in text_chunks:
         audio = client.text_to_speech.convert(
             text=chunk,
@@ -81,21 +82,3 @@ def generate_eleven_labs_audio(
         os.unlink(temp_file)
 
     return final_temp_file.name
-
-
-if __name__ == "__main__":
-    podcast_title = "continuous_thought"
-    text = read_text_file(
-        "/Users/derek/Desktop/podcaist/podcaist/saved_outputs/gemini_v2_5_report_gemini-2.5-pro_gemini-2.5-pro.txt"
-    )
-    temp_file = generate_eleven_labs_audio(podcast_title, text)
-
-    # Create a filename from the podcast title
-    safe_title = "".join(c if c.isalnum() else "_" for c in podcast_title.lower())
-    output_path = "./podcast_outputs"
-    os.makedirs(output_path, exist_ok=True)
-    output_file = os.path.join(output_path, f"{safe_title}.mp3")
-
-    # Move the temp file to the final location
-    os.rename(temp_file, output_file)
-    print(f"Audio saved to: {output_file}")

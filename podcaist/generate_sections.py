@@ -128,7 +128,7 @@ def generate_podcast(
     method: Optional[str],
     results: Optional[str],
     limitations: Optional[str],
-    model: str = "gpt-4o-mini-2024-07-18"
+    model: str = "gemini-2.5-pro"
 ) -> str:
     if contributions is not None:
         formatted_contributions = format_contributions(contributions)

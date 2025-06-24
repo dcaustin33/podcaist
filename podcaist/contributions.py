@@ -1,5 +1,4 @@
 import asyncio
-import json
 import os
 import tempfile
 
@@ -53,29 +52,3 @@ async def summarize_contributions_async(
     input_to_model = [("pdf", pdf_file_path), ("text", prompt)]
     response = await generate_text_response_async(input_to_model, model, Contributions)
     return response
-
-
-if __name__ == "__main__":
-    possible_models = [
-        "gpt-4o-mini-2024-07-18",
-        "o3-2025-04-16",
-        "o3-mini-2025-01-31",
-        "gpt-4.1-2025-04-14",
-        "gemini-2.5-pro",
-    ]
-    model_name = possible_models[4]
-
-    pdf_name = "Learning Physically Simulated Tennis Skills from Broadcast Videos.pdf"
-    pdf_path = (
-        "/Users/derek/Library/Mobile Documents/com~apple~CloudDocs/Desktop/ML Papers 2/papers_to_read/"
-        + pdf_name
-    )
-    compressed_pdf_path = tempfile.NamedTemporaryFile(suffix=".pdf", delete=True).name
-    compress_pdf(pdf_path, compressed_pdf_path)
-    compressed_size = os.path.getsize(compressed_pdf_path)
-    print(f"Compressed PDF size: {compressed_size / (1024*1024):.2f} MB")
-    response = asyncio.run(
-        summarize_contributions_async(compressed_pdf_path, model_name)
-    )
-
-    write_json_file(f"saved_outputs/contributions_{model_name}.json", response)
