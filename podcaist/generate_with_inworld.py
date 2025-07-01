@@ -1,42 +1,50 @@
+import base64
+import json
 import os
 import shutil
 import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List
 
-from elevenlabs import save
-from elevenlabs.client import ElevenLabs
+import requests
 
 from podcaist.utils import read_text_file, split_text_at_line_breaks
 
 
-def generate_eleven_labs_audio(
+def generate_inworld_audio(
     text: str,
-    voice: str = "nPczCjzI2devNBz1zQrb",
-    model_id: str = "eleven_multilingual_v2",
-    output_format: str = "mp3_44100_128",
+    voice: str = "Edward",
+    model_id: str = "inworld-tts-1",
     remote: bool = True,
     max_workers: int = 3,
 ) -> str:
 
-    assert remote, "Eleven Labs is not supported locally"
-    api_key = os.getenv("ELEVENLABS_API_KEY")
-    client = ElevenLabs(api_key=api_key)
+    assert remote, "Inworld is not supported locally"
+    api_key = os.getenv("INWORLD_API_KEY")
 
     # Split text into chunks if needed
     text_chunks = split_text_at_line_breaks(text)
 
     # Process each chunk in parallel and combine the audio files
     def generate_chunk_audio(chunk: str, chunk_index: int) -> tuple[int, str]:
-        audio = client.text_to_speech.convert(
-            text=chunk,
-            voice_id=voice,
-            model_id=model_id,
-            output_format=output_format,
-        )
+        url = "https://api.inworld.ai/tts/v1/voice"
+        headers = {
+            "Authorization": f"Basic {api_key}",
+            "Content-Type": "application/json",
+        }
+        data = {
+            "text": chunk,
+            "voiceId": voice,
+            "modelId": model_id,
+        }
+        response = requests.request("POST", url, json=data, headers=headers)
+        response_data = response.json()
 
         mp3_temp_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
-        save(audio, mp3_temp_file.name)
+        # Extract audio content from the audioContent field
+        audio_bytes = base64.b64decode(response_data["audioContent"])
+        mp3_temp_file.write(audio_bytes)
+        mp3_temp_file.flush()
         return chunk_index, mp3_temp_file.name
 
     temp_files = [None] * len(text_chunks)  # Pre-allocate list to maintain order
@@ -72,9 +80,6 @@ def generate_eleven_labs_audio(
 
 
 if __name__ == "__main__":
-    text = read_text_file(
-        "/Users/derek/Desktop/podcaist/podcaist/saved_outputs/Reinforcement Learning Teachers of Test Time Scaling_gemini-2.5-pro_gemini-2.5-pro.txt"
-    )
-    temp_file = generate_eleven_labs_audio(text)
-    local_file_path = "./podcast_outputs/Reinforcement Learning Teachers of Test Time Scaling_gemini-2.5-pro_gemini-2.5-pro-full.mp3"
-    shutil.copy2(temp_file, local_file_path)
+    tmp_file = generate_inworld_audio(text)
+    local_file_path = "./podcast_outputs/inworld_test.mp3"
+    shutil.copy2(tmp_file, local_file_path)
