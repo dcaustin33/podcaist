@@ -1,7 +1,3 @@
-import asyncio
-import os
-import tempfile
-
 from pydantic import BaseModel, Field
 
 from podcaist.model_garden import generate_text_response, generate_text_response_async
@@ -13,7 +9,7 @@ Based on the attached pdf I want you to summarize the key contributions of the p
 Specifically I want you to ask yourself why the research community should care about this paper. \
 What exactly does it contribute to the field that was not known before. \
 This can be multi-faceted and should likely be a list of possible reasons why we should care about the paper. \
-Lastly detail the conclusions of the paper and what question it solved or answered.
+Lastly detail the conclusions of the paper and what question it solved or answered.\
 """
 
 

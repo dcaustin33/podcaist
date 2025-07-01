@@ -109,13 +109,13 @@ def generate_gemini_response(
     resp = client.models.generate_content(
         model=model, contents=input_contents, config=config
     )
-    generate_price_estimate(
-        model,
-        resp.usage_metadata.prompt_token_count,
-        resp.usage_metadata.cached_content_token_count,
-        resp.usage_metadata.candidates_token_count,
-        resp.usage_metadata.thoughts_token_count,
-    )
+    # generate_price_estimate(
+    #     model,
+    #     resp.usage_metadata.prompt_token_count,
+    #     resp.usage_metadata.cached_content_token_count,
+    #     resp.usage_metadata.candidates_token_count,
+    #     resp.usage_metadata.thoughts_token_count,
+    # )
 
     return json.loads(resp.text) if response_format else resp.text
 
@@ -141,13 +141,13 @@ async def generate_gemini_response_async(
         contents=input_contents,
         config=cfg,
     )
-    generate_price_estimate(
-        model,
-        resp.usage_metadata.prompt_token_count,
-        resp.usage_metadata.cached_content_token_count,
-        resp.usage_metadata.candidates_token_count,
-        resp.usage_metadata.thoughts_token_count,
-    )
+    # generate_price_estimate(
+    #     model,
+    #     resp.usage_metadata.prompt_token_count,
+    #     resp.usage_metadata.cached_content_token_count,
+    #     resp.usage_metadata.candidates_token_count,
+    #     resp.usage_metadata.thoughts_token_count,
+    # )
     return json.loads(resp.text) if response_format else resp.text
 
 
