@@ -43,8 +43,8 @@ def format_contributions(response: str) -> str:
 
 
 async def summarize_contributions_async(
-    pdf_file_path: str, model: str = "gpt-4o-mini-2024-07-18"
+    pdf_file_path: str, model: str = "gpt-4o-mini-2024-07-18", api_key: str | None = None
 ) -> str:
     input_to_model = [("pdf", pdf_file_path), ("text", prompt)]
-    response = await generate_text_response_async(input_to_model, model, Contributions)
+    response = await generate_text_response_async(input_to_model, model, Contributions, api_key=api_key)
     return response

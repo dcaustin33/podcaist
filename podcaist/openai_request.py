@@ -26,8 +26,10 @@ def generate_openai_response(
     input_contents: list,
     model: str = "gpt-4o-mini-2024-07-18",
     response_format: Optional[BaseModel] = None,
+    api_key: str | None = None,
 ) -> Dict[str, Any]:
-    api_key = os.getenv("OPENAI_API_KEY")
+    if api_key is None:
+        api_key = os.getenv("OPENAI_API_KEY")
     client = OpenAI(api_key=api_key)
 
     max_retries = 5
@@ -84,6 +86,7 @@ async def generate_openai_response_async(
     input_contents: list,
     model: str = "gpt-4o-mini-2024-07-18",
     response_format: Optional[BaseModel] = None,
+    api_key: str | None = None,
 ) -> Dict[str, Any] | str:
     """
     Async wrapper around the OpenAI chat endpoint.
@@ -93,7 +96,9 @@ async def generate_openai_response_async(
     • Otherwise we return the raw string content.
     • Implements exponential backoff for rate limit errors (429)
     """
-    api_key = os.getenv("OPENAI_API_KEY")
+    if api_key is None:
+        api_key = os.getenv("OPENAI_API_KEY")
+        
     client = AsyncOpenAI(api_key=api_key)
 
     max_retries = 5

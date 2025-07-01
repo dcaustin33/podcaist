@@ -25,8 +25,9 @@ MODEL_TO_OUTPUT_PRICE_PER_MILLION = {
 }
 
 
-def get_gemini_client() -> genai.Client:
-    api_key = os.getenv("GEMINI_API_KEY")
+def get_gemini_client(api_key: str | None = None) -> genai.Client:
+    if api_key is None:
+        api_key = os.getenv("GEMINI_API_KEY")
     client = genai.Client(api_key=api_key)
     return client
 
@@ -97,8 +98,9 @@ def generate_gemini_response(
     input_contents: list,
     model: str = "gemini-2.0-flash-lite-001",
     response_format: Optional[BaseModel] = None,
+    api_key: str | None = None,
 ) -> str:
-    client = get_gemini_client()
+    client = get_gemini_client(api_key)
 
     config = None
     if response_format:
@@ -124,9 +126,10 @@ async def generate_gemini_response_async(
     input_contents: list,
     model: str = "gemini-2.0-flash-lite-001",
     response_format: Optional[BaseModel] = None,
+    api_key: str | None = None,
 ) -> str | Dict[str, Any]:
     """Generate a response (optionally JSON‑parsed) asynchronously."""
-    client = get_gemini_client()
+    client = get_gemini_client(api_key)
     cfg = (
         GenerateContentConfig(
             response_mime_type="application/json",
@@ -141,13 +144,13 @@ async def generate_gemini_response_async(
         contents=input_contents,
         config=cfg,
     )
-    # generate_price_estimate(
-    #     model,
-    #     resp.usage_metadata.prompt_token_count,
-    #     resp.usage_metadata.cached_content_token_count,
-    #     resp.usage_metadata.candidates_token_count,
-    #     resp.usage_metadata.thoughts_token_count,
-    # )
+    generate_price_estimate(
+        model,
+        resp.usage_metadata.prompt_token_count,
+        resp.usage_metadata.cached_content_token_count,
+        resp.usage_metadata.candidates_token_count,
+        resp.usage_metadata.thoughts_token_count,
+    )
     return json.loads(resp.text) if response_format else resp.text
 
 

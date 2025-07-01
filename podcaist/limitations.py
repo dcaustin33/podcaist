@@ -14,7 +14,7 @@ Here are the contributions:
 
 
 def limitations(
-    pdf_file_path: str, contributions: list[str], model: str = "gpt-4o-mini-2024-07-18"
+    pdf_file_path: str, contributions: list[str], model: str = "gpt-4o-mini-2024-07-18", api_key: str | None = None
 ) -> str:
     formatted_contributions = format_contributions(contributions)
     input = [
@@ -24,17 +24,18 @@ def limitations(
     response = generate_text_response(
         input_contents=input,
         model=model,
+        api_key=api_key,
     )
     return response
 
 
 async def limitations_async(
-    pdf_file_path: str, contributions: list[str], model: str = "gpt-4o-mini-2024-07-18"
+    pdf_file_path: str, contributions: list[str], model: str = "gpt-4o-mini-2024-07-18", api_key: str | None = None
 ) -> str:
     formatted_contributions = format_contributions(contributions)
     input = [
         ("pdf", pdf_file_path),
         ("text", prompt.format(contributions=formatted_contributions)),
     ]
-    response = await generate_text_response_async(input, model)
+    response = await generate_text_response_async(input, model, api_key=api_key)
     return response
