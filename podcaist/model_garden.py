@@ -51,6 +51,7 @@ def generate_text_response(
     input_contents: list[tuple[str, str]],
     model: str = "gpt-4o-mini-2024-07-18",
     response_format: Optional[BaseModel] = None,
+    api_key: str | None = None,
 ) -> str:
     """Input contents should be a dict with the type (pdf or text) and then the actual content
 
@@ -64,7 +65,7 @@ def generate_text_response(
     ), "The first input should be the path to the pdf file or the text"
     formatted_input_contents = generate_input_contents(input_contents, model)
     return get_function_for_model(model)(
-        formatted_input_contents, model, response_format
+        formatted_input_contents, model, response_format, api_key=api_key
     )
 
 
@@ -124,6 +125,7 @@ async def generate_text_response_async(
     input_contents: list[tuple[str, str]],
     model: str = "gpt-4o-mini-2024-07-18",
     response_format: Optional[BaseModel] = None,
+    api_key: str | None = None,
 ) -> str:
     assert (
         len(input_contents) <= 2
@@ -133,5 +135,5 @@ async def generate_text_response_async(
     ), "The first input should be the path to the pdf file or the text"
     formatted_input_contents = generate_input_contents(input_contents, model)
     output_function = get_function_for_model(model, True)
-    output = await output_function(formatted_input_contents, model, response_format)
+    output = await output_function(formatted_input_contents, model, response_format, api_key=api_key)
     return output

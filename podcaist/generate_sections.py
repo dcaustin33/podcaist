@@ -94,6 +94,7 @@ def generate_podcast(
     limitations: str,
     model: str = "gemini-2.5-pro",
     custom_instructions: str | None = None,
+    api_key: str | None = None,
 ) -> str:
     formatted_contributions = format_contributions(contributions)
     input_to_the_model = general_generate_prompt.format(
@@ -108,7 +109,7 @@ def generate_podcast(
         ("pdf", pdf_file_path),
         ("text", input_to_the_model),
     ]
-    response = generate_text_response(input, model)
+    response = generate_text_response(input, model, api_key=api_key)
     response = response.replace("STARTING THE GENERATION NOW", "")
     response = remove_music_lines(response)
     return response

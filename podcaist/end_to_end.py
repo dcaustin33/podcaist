@@ -21,6 +21,7 @@ def generate_entire_podcast(
     progress: Progress | None = None,
     test_audio: bool = False,
     custom_instructions: str | None = None,
+    api_key: str | None = None,
 ) -> None:
     podcast_title = os.path.basename(pdf_path).split(".")[0] + "_" + model
     if not test_audio:
@@ -36,6 +37,7 @@ def generate_entire_podcast(
                 model=model,
                 progress=progress,
                 custom_instructions=custom_instructions,
+                api_key=api_key,
             )
         )
 
