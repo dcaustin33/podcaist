@@ -78,11 +78,11 @@ if __name__ == "__main__":
     pdf_path = os.path.join(icloud_path, pdf_name)
     temp_file = generate_entire_podcast(
         pdf_path,
-        model="gemini-2.5-pro",
-        audio_model="eleven_labs",
+        model="gemini-2.5-flash",
+        audio_model="kokoro",
         remote=True,
         save_script_locally=True,
         save_audio_locally=True,
-        custom_instructions=custom_instructions
+        custom_instructions=custom_instructions,
+        api_key=os.getenv("GEMINI_API_KEY"),
     )
-
