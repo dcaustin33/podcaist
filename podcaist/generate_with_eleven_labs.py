@@ -35,10 +35,10 @@ def split_text_at_line_breaks(text: str, max_length: int = 3000) -> List[str]:
 def generate_eleven_labs_audio(
     text: str,
     voice: str = "nPczCjzI2devNBz1zQrb",
-    model_id: str = "eleven_flash_v2_5",
+    model_id: str = "eleven_multilingual_v2",
     output_format: str = "mp3_44100_128",
     remote: bool = True,
-    max_workers: int = 4,
+    max_workers: int = 3,
 ) -> str:
 
     assert remote, "Eleven Labs is not supported locally"
@@ -49,24 +49,27 @@ def generate_eleven_labs_audio(
     text_chunks = split_text_at_line_breaks(text)
 
     # Process each chunk in parallel and combine the audio files
-    def generate_chunk_audio(chunk: str) -> str:
+    def generate_chunk_audio(chunk: str, chunk_index: int) -> tuple[int, str]:
         audio = client.text_to_speech.convert(
             text=chunk,
             voice_id=voice,
             model_id=model_id,
             output_format=output_format,
         )
-        
+
         mp3_temp_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
         save(audio, mp3_temp_file.name)
-        return mp3_temp_file.name
+        return chunk_index, mp3_temp_file.name
 
-    temp_files = []
+    temp_files = [None] * len(text_chunks)  # Pre-allocate list to maintain order
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_chunk = {executor.submit(generate_chunk_audio, chunk): chunk for chunk in text_chunks}
+        future_to_chunk = {
+            executor.submit(generate_chunk_audio, chunk, i): chunk
+            for i, chunk in enumerate(text_chunks)
+        }
         for future in as_completed(future_to_chunk):
-            temp_file = future.result()
-            temp_files.append(temp_file)
+            chunk_index, temp_file = future.result()
+            temp_files[chunk_index] = temp_file
 
     # If we only have one chunk, return it directly
     if len(temp_files) == 1:
@@ -92,8 +95,8 @@ def generate_eleven_labs_audio(
 
 if __name__ == "__main__":
     text = read_text_file(
-        "/Users/derek/Desktop/podcaist/podcaist/saved_outputs/gemini_v2_5_report_gemini-2.5-pro_gemini-2.5-pro.txt"
+        "/Users/derek/Desktop/podcaist/podcaist/saved_outputs/Reinforcement Learning Teachers of Test Time Scaling_gemini-2.5-pro_gemini-2.5-pro.txt"
     )
     temp_file = generate_eleven_labs_audio(text)
-    local_file_path = "./podcast_outputs/gemini_v2_5_report_gemini-2.5-pro_gemini-2.5-pro.mp3"
+    local_file_path = "./podcast_outputs/Reinforcement Learning Teachers of Test Time Scaling_gemini-2.5-pro_gemini-2.5-pro-full.mp3"
     shutil.copy2(temp_file, local_file_path)

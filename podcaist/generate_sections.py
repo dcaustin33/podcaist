@@ -18,7 +18,7 @@ Here is a summary of the results that you have extracted from the attached paper
 Here is a summary of the limitations that you have extracted from the attached paper:
 {limitations}
 
-You are an expert podcast host of a podcast called the AI Research Deep Dive. \
+You are an expert podcast host of a podcast called The AI Research Deep Dive. \
 The podcast is meant to have an engaging friendly conversational tone while being educational. \
 You have been given a pdf of a research paper as well as a summary of the contributions, method, results and limitations. \
 The task at hand is to synthesize the information into a coherent podcast. Specifically you are to write verbatim what is going \
@@ -65,9 +65,13 @@ Generate the section after thinking through your approach and what would be best
 actual word for word generation that will be read by the text to speech engine with the string 'STARTING THE GENERATION NOW'. I will use that to split the response \
 automatically so it is extremely important you do that. Do not include any other text like 'Introduction' or anything else that resemble section titles. The response will be fed DIRECTLY \
 into a text to speech engine so every word will be read out loud after seeing the string 'STARTING THE GENERATION NOW'. Do NOT include anything about intro music or anything else \
-of the sort that is not considered part of the podcast content. Do not use asterisks or any other markdown formatting.
+of the sort that is not considered part of the podcast content. Do NOT use asterisks '*' or any other markdown formatting.
 """
 
+custom_instructions_prompt = """\
+Here are some additional instructions from the user in regards to this paper that you should especially focus on:
+{custom_instructions}
+"""
 
 def remove_music_lines(text: str) -> str:
     """Remove any lines that contain the word 'music' inside parentheses."""
@@ -88,7 +92,8 @@ def generate_podcast(
     method: str,
     results: str,
     limitations: str,
-    model: str = "gemini-2.5-pro"
+    model: str = "gemini-2.5-pro",
+    custom_instructions: str | None = None,
 ) -> str:
     formatted_contributions = format_contributions(contributions)
     input_to_the_model = general_generate_prompt.format(
@@ -97,6 +102,8 @@ def generate_podcast(
         results=results,
         limitations=limitations,
     )
+    if custom_instructions:
+        input_to_the_model = custom_instructions_prompt.format(custom_instructions=custom_instructions) + "\n\n" + input_to_the_model
     input = [
         ("pdf", pdf_file_path),
         ("text", input_to_the_model),

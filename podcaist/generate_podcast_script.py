@@ -29,6 +29,7 @@ def generate_podcast_script(
     model="gpt-4o-mini-2024-07-18",
     write_output: bool = False,
     progress: Progress | None = None,
+    custom_instructions: str | None = None,
 ) -> str:
 
     progress and progress.step("Summarizing the main contributions")
@@ -39,7 +40,7 @@ def generate_podcast_script(
     method_text = method(pdf_file_path, contributions, model)
 
     podcast = generate_podcast(
-        pdf_file_path, contributions, method_text, results_text, limitation_text, model
+        pdf_file_path, contributions, method_text, results_text, limitation_text, model, custom_instructions
     )
     if write_output:
         write_text_file(f"saved_outputs/podcast_{model}.txt", podcast)
@@ -51,6 +52,7 @@ async def generate_podcast_script_async(
     model="gpt-4o-mini-2024-07-18",
     write_output: bool = False,
     progress: Progress | None = None,
+    custom_instructions: str | None = None,
 ) -> str:
 
     progress and progress.step("Summarizing the main contributions")
@@ -66,7 +68,7 @@ async def generate_podcast_script_async(
     )
 
     podcast = generate_podcast(
-        pdf_file_path, contributions, method_text, results_text, limitation_text, model
+        pdf_file_path, contributions, method_text, results_text, limitation_text, model, custom_instructions
     )
     if write_output:
         write_text_file(f"saved_outputs/podcast_{model}.txt", podcast)

@@ -11,7 +11,7 @@ from podcaist.modal_utils import app, image
 
 # 2️⃣  Remote function ------------------------------------------------------------
 @app.function(
-    gpu="T4",  # pick any GPU on the list in docs (T4, L4, A10G, A100…)  [oai_citation_attribution:0‡Modal](https://modal.com/docs/guide/gpu?utm_source=chatgpt.com)
+    gpu="T4", 
     timeout=600,  # plenty of time for the first model load
     image=image,
     # If the model is gated add: secrets=[modal.Secret.from_name("huggingface")]

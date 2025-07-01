@@ -20,6 +20,7 @@ def generate_entire_podcast(
     local_output_path: str = "./podcast_outputs",
     progress: Progress | None = None,
     test_audio: bool = False,
+    custom_instructions: str | None = None,
 ) -> None:
     podcast_title = os.path.basename(pdf_path).split(".")[0] + "_" + model
     if not test_audio:
@@ -34,6 +35,7 @@ def generate_entire_podcast(
                 compressed_pdf_path,
                 model=model,
                 progress=progress,
+                custom_instructions=custom_instructions,
             )
         )
 
@@ -66,14 +68,19 @@ def generate_entire_podcast(
 
 if __name__ == "__main__":
     icloud_path = "/Users/derek/Library/Mobile Documents/com~apple~CloudDocs/Desktop/ML Papers 2/papers_to_read"
-    pdf_name = "Samwise.pdf"
+    pdf_name = "Reinforcement Learning Teachers of Test Time Scaling.pdf"
+    custom_instructions = None
+    # custom_instructions = """\
+    # Pay special attention and care to the group relative policy optimization section. This should be the most important section of the podcast.
+    # """
     pdf_path = os.path.join(icloud_path, pdf_name)
     temp_file = generate_entire_podcast(
         pdf_path,
-        model="gemini-2.5-flash",
+        model="gemini-2.5-pro",
         audio_model="eleven_labs",
         remote=True,
         save_script_locally=True,
         save_audio_locally=True,
+        custom_instructions=custom_instructions
     )
 
