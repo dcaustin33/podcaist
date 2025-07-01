@@ -7,29 +7,7 @@ from typing import List
 from elevenlabs import save
 from elevenlabs.client import ElevenLabs
 
-from podcaist.utils import read_text_file
-
-
-def split_text_at_line_breaks(text: str, max_length: int = 3000) -> List[str]:
-    """Split text into chunks at line breaks, ensuring no chunk exceeds max_length."""
-    if len(text) <= max_length:
-        return [text]
-
-    chunks = []
-    current_chunk = ""
-
-    for line in text.split("\n"):
-        if len(current_chunk) + len(line) + 1 <= max_length:
-            current_chunk += line + "\n"
-        else:
-            if current_chunk:
-                chunks.append(current_chunk.strip())
-            current_chunk = line + "\n"
-
-    if current_chunk:
-        chunks.append(current_chunk.strip())
-
-    return chunks
+from podcaist.utils import read_text_file, split_text_at_line_breaks
 
 
 def generate_eleven_labs_audio(
