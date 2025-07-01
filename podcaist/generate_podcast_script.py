@@ -76,6 +76,7 @@ async def generate_podcast_script_async(
         results_async(pdf_file_path, contributions, model, api_key=api_key),
         method_async(pdf_file_path, contributions, model, api_key=api_key),
     )
+    progress and progress.step("Generating podcast script")
 
     podcast = generate_podcast(
         pdf_file_path,
