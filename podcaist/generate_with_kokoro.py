@@ -11,7 +11,7 @@ from podcaist.modal_utils import app, image
 
 # 2️⃣  Remote function ------------------------------------------------------------
 @app.function(
-    gpu="T4",  # pick any GPU on the list in docs (T4, L4, A10G, A100…)  [oai_citation_attribution:0‡Modal](https://modal.com/docs/guide/gpu?utm_source=chatgpt.com)
+    gpu="T4", 
     timeout=600,  # plenty of time for the first model load
     image=image,
     # If the model is gated add: secrets=[modal.Secret.from_name("huggingface")]
@@ -54,10 +54,8 @@ def generate_kokoro_audio_local(
 
 
 def generate_kokoro_audio(
-    podcast_title: str,
     text: str,
     voice: str = "af_heart",
-    output_path: str = "./podcast_outputs",
     remote: bool = False,
 ) -> None:
     if remote:
@@ -71,8 +69,6 @@ def generate_kokoro_audio(
         wav_temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=True)
         sf.write(wav_temp_file.name, combined_audio, 24000)
         wav_temp_file.flush()
-
-        os.makedirs(output_path, exist_ok=True)
 
         mp3_temp_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
         pydub.AudioSegment.from_wav(wav_temp_file.name).export(

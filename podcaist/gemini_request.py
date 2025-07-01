@@ -1,19 +1,34 @@
 import asyncio
 import json
-from typing import Any, Dict, List, Optional
 import os
+from typing import Any, Dict, List, Optional
 
 from google import genai
-from google.genai.types import (CreateCachedContentConfig,
-                                GenerateContentConfig, Part)
+from google.genai.types import CreateCachedContentConfig, GenerateContentConfig, Part
 from pydantic import BaseModel
 
 from podcaist.utils import read_pdf_file_bytes
 
+MODEL_TO_CACHED_TOKEN_PRICE = {
+    "gemini-2.5-pro": 0.31,
+    "gemini-2.5-flash": 0.075,
+}
 
-api_key = os.getenv("GEMINI_API_KEY")
-client = genai.Client(api_key=api_key)
-aio = client.aio
+MODEL_TO_INPUT_PRICE_PER_MILLION = {
+    "gemini-2.5-pro": 1.25,
+    "gemini-2.5-flash": 0.3,
+}
+
+MODEL_TO_OUTPUT_PRICE_PER_MILLION = {
+    "gemini-2.5-pro": 10,
+    "gemini-2.5-flash": 2.5,
+}
+
+
+def get_gemini_client() -> genai.Client:
+    api_key = os.getenv("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
+    return client
 
 
 def get_pdf_for_prompt(pdf_path: str) -> bytes:
@@ -24,8 +39,7 @@ def get_pdf_for_prompt(pdf_path: str) -> bytes:
 def upload_pdf_and_cache(
     pdf_path: str, model: str = "gemini-2.0-flash-lite-001"
 ) -> str:
-    api_key = os.getenv("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
+    client = get_gemini_client()
     pdf_bytes = read_pdf_file_bytes(pdf_path)
     client_pdf_type = Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")
     document = client.files.upload(
@@ -42,15 +56,41 @@ def upload_pdf_and_cache(
 
 
 def list_cached_content() -> List[Dict[str, Any]]:
-    api_key = os.getenv("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
+    client = get_gemini_client()
     return client.caches.list()
 
 
 def delete_cached_content(cache_name: str) -> None:
-    api_key = os.getenv("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
+    client = get_gemini_client()
     client.caches.delete(cache_name)
+
+
+def generate_price_estimate(
+    model: str,
+    input_tokens: int,
+    cached_tokens: int,
+    output_tokens: int,
+    thoughts_tokens: int,
+) -> float:
+    input_tokens = 0 if input_tokens is None else input_tokens
+    cached_tokens = 0 if cached_tokens is None else cached_tokens
+    output_tokens = 0 if output_tokens is None else output_tokens
+    thoughts_tokens = 0 if thoughts_tokens is None else thoughts_tokens
+    input_price = (
+        MODEL_TO_INPUT_PRICE_PER_MILLION[model]
+        * (input_tokens - cached_tokens)
+        / 1000000
+    )
+    cached_price = MODEL_TO_CACHED_TOKEN_PRICE[model] * cached_tokens / 1000000
+    output_price = (
+        MODEL_TO_OUTPUT_PRICE_PER_MILLION[model]
+        * (output_tokens + thoughts_tokens)
+        / 1000000
+    )
+    print(
+        f" Total price: {input_price + cached_price + output_price}. Input price: {input_price}, cached price: {cached_price}, output price: {output_price}"
+    )
+    return input_price + cached_price + output_price
 
 
 def generate_gemini_response(
@@ -58,8 +98,7 @@ def generate_gemini_response(
     model: str = "gemini-2.0-flash-lite-001",
     response_format: Optional[BaseModel] = None,
 ) -> str:
-    api_key = os.getenv("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
+    client = get_gemini_client()
 
     config = None
     if response_format:
@@ -67,12 +106,18 @@ def generate_gemini_response(
             response_mime_type="application/json",
             response_schema=response_format,
         )
-
-    output = client.models.generate_content(
+    resp = client.models.generate_content(
         model=model, contents=input_contents, config=config
     )
+    # generate_price_estimate(
+    #     model,
+    #     resp.usage_metadata.prompt_token_count,
+    #     resp.usage_metadata.cached_content_token_count,
+    #     resp.usage_metadata.candidates_token_count,
+    #     resp.usage_metadata.thoughts_token_count,
+    # )
 
-    return json.loads(output.text) if response_format else output.text
+    return json.loads(resp.text) if response_format else resp.text
 
 
 async def generate_gemini_response_async(
@@ -81,6 +126,7 @@ async def generate_gemini_response_async(
     response_format: Optional[BaseModel] = None,
 ) -> str | Dict[str, Any]:
     """Generate a response (optionally JSON‑parsed) asynchronously."""
+    client = get_gemini_client()
     cfg = (
         GenerateContentConfig(
             response_mime_type="application/json",
@@ -90,11 +136,18 @@ async def generate_gemini_response_async(
         else None
     )
 
-    resp = await aio.models.generate_content(
+    resp = await client.aio.models.generate_content(
         model=model,
         contents=input_contents,
         config=cfg,
     )
+    # generate_price_estimate(
+    #     model,
+    #     resp.usage_metadata.prompt_token_count,
+    #     resp.usage_metadata.cached_content_token_count,
+    #     resp.usage_metadata.candidates_token_count,
+    #     resp.usage_metadata.thoughts_token_count,
+    # )
     return json.loads(resp.text) if response_format else resp.text
 
 

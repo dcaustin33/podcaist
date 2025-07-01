@@ -21,6 +21,9 @@ kokoro = "^0.9.4"
 modal = "^0.74.21"
 
 
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

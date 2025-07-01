@@ -1,19 +1,24 @@
 from pydantic import BaseModel, Field
 
-from podcaist.model_garden import (generate_text_response,
-                                   generate_text_response_async)
+from podcaist.model_garden import generate_text_response, generate_text_response_async
+from podcaist.pdf_utils import compress_pdf
+from podcaist.utils import write_json_file
 
 prompt = """
-Based on the attach pdf I want you to summarize the key contributions of the paper. 
-Specifically I want you to identify how this paper moves the field forward. 
-This can be multi-faceted as well - it does not have to be a single contribution. 
-For instance, you should identify if the paper uses a new loss function, a new model, a new dataset, a new evaluation metric, or a new application of a known method.
+Based on the attached pdf I want you to summarize the key contributions of the paper. \
+Specifically I want you to ask yourself why the research community should care about this paper. \
+What exactly does it contribute to the field that was not known before. \
+This can be multi-faceted and should likely be a list of possible reasons why we should care about the paper. \
+Lastly detail the conclusions of the paper and what question it solved or answered.\
 """
 
 
 class Contributions(BaseModel):
-    summary: str = Field(
-        description="A concise summary of all the contributions combined into a single paragraph"
+    thoughts: str = Field(
+        description="A detailed thought process of why this paper is important."
+    )
+    why_should_we_care: str = Field(
+        description="A detailed explanation of why the research community should care about this paper."
     )
     key_contributions: list[str] = Field(
         description="A list of strings, each representing a distinct contribution of the paper"
