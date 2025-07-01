@@ -23,7 +23,7 @@ def generate_inworld_audio(
     api_key = os.getenv("INWORLD_API_KEY")
 
     # Split text into chunks if needed
-    text_chunks = split_text_at_line_breaks(text)
+    text_chunks = split_text_at_line_breaks(text, 2000)
 
     # Process each chunk in parallel and combine the audio files
     def generate_chunk_audio(chunk: str, chunk_index: int) -> tuple[int, str]:
