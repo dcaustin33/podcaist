@@ -70,16 +70,14 @@ def generate_entire_podcast(
 
 if __name__ == "__main__":
     icloud_path = "/Users/derek/Library/Mobile Documents/com~apple~CloudDocs/Desktop/ML Papers 2/papers_to_read"
-    pdf_name = "Reinforcement Learning Teachers of Test Time Scaling.pdf"
+    pdf_name = "Reinforcement Learning with Action Chunking.pdf"
+    # custom_instructions = "Go really deep on the method and ensure I understand every detail of the method."
     custom_instructions = None
-    # custom_instructions = """\
-    # Pay special attention and care to the group relative policy optimization section. This should be the most important section of the podcast.
-    # """
     pdf_path = os.path.join(icloud_path, pdf_name)
     temp_file = generate_entire_podcast(
         pdf_path,
-        model="gemini-2.5-flash",
-        audio_model="kokoro",
+        model="gemini-2.5-pro",
+        audio_model="eleven_labs",
         remote=True,
         save_script_locally=True,
         save_audio_locally=True,

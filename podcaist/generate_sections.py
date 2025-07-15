@@ -65,7 +65,7 @@ Generate the section after thinking through your approach and what would be best
 actual word for word generation that will be read by the text to speech engine with the string 'STARTING THE GENERATION NOW'. I will use that to split the response \
 automatically so it is extremely important you do that. Do not include any other text like 'Introduction' or anything else that resemble section titles. The response will be fed DIRECTLY \
 into a text to speech engine so every word will be read out loud after seeing the string 'STARTING THE GENERATION NOW'. Do NOT include anything about intro music or anything else \
-of the sort that is not considered part of the podcast content. Do NOT use asterisks '*' or any other markdown formatting.
+of the sort that is not considered part of the podcast content. Do NOT use any asterisks like this '*', or "**word**" or any other markdown formatting.
 """
 
 custom_instructions_prompt = """\
