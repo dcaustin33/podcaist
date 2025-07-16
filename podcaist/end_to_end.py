@@ -70,8 +70,7 @@ def generate_entire_podcast(
 
 if __name__ == "__main__":
     icloud_path = "/Users/derek/Library/Mobile Documents/com~apple~CloudDocs/Desktop/ML Papers 2/papers_to_read"
-    pdf_name = "Reinforcement Learning with Action Chunking.pdf"
-    # custom_instructions = "Go really deep on the method and ensure I understand every detail of the method."
+    pdf_name = "Proximal Policy Optimization.pdf"
     custom_instructions = None
     pdf_path = os.path.join(icloud_path, pdf_name)
     temp_file = generate_entire_podcast(
